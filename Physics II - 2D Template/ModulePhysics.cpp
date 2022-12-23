@@ -36,7 +36,7 @@ update_status ModulePhysics::PostUpdate()
 		return UPDATE_CONTINUE;
 
 	if (bodyList.getFirst() != nullptr) {
-		for (p2List_item<Body*>* bodyNode = bodyList.getFirst(); bodyNode->next != nullptr; bodyNode = bodyNode->next) {
+		for (p2List_item<Body*>* bodyNode = bodyList.getFirst(); bodyNode != nullptr; bodyNode = bodyNode->next) {
 
 			Body* body = bodyNode->data;
 
@@ -45,10 +45,10 @@ update_status ModulePhysics::PostUpdate()
 			switch (body->GetType()) {
 			case (PhysType::TERRAIN):
 
-				RGBAlpha[0] = 0;
+				RGBAlpha[0] = 255;
 				RGBAlpha[1] = 0;
 				RGBAlpha[2] = 0;
-				RGBAlpha[3] = 0;
+				RGBAlpha[3] = 255;
 				break;
 			case (PhysType::ENTITY):
 
@@ -70,6 +70,7 @@ update_status ModulePhysics::PostUpdate()
 				SDL_Rect rect = body->GetBounds();
 
 				App->renderer->DrawQuad(rect, RGBAlpha[0], RGBAlpha[1], RGBAlpha[2], RGBAlpha[3]);
+				
 			}
 
 			if (body->GetShape() == Shape::CIRCLE) {
@@ -94,9 +95,11 @@ bool ModulePhysics::CleanUp()
 	return true;
 }
 
-Body* ModulePhysics::CreateRectangle() {
+Body* ModulePhysics::CreateRectangle(SDL_Rect bounds, PhysType type) {
 
-	Body* body = new Body();
+	Body* body = new Body(bounds,type);
+
+	body->shape = Shape::RECTANGLE;
 	
 	bodyList.add(body);
 

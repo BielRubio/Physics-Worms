@@ -34,6 +34,8 @@ private:
 	PhysType type;
 	Shape shape;
 
+
+	friend class ModulePhysics;
 };
 
 class ModulePhysics : public Module
@@ -47,7 +49,7 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	Body* CreateRectangle();
+	Body* CreateRectangle(SDL_Rect bounds, PhysType type);
 	Body* CreateCircle();
 
 private:

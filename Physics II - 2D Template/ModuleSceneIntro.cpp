@@ -20,6 +20,10 @@ bool ModuleSceneIntro::Start()
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
+	//Initialize bodies
+
+	App->physics->CreateRectangle({ 0,App->renderer->camera.h,App->renderer->camera.w,-200 }, PhysType::TERRAIN);
+
 	return ret;
 }
 
