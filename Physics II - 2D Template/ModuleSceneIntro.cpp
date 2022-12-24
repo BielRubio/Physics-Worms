@@ -22,7 +22,9 @@ bool ModuleSceneIntro::Start()
 
 	//Initialize bodies
 
-	App->physics->CreateRectangle({ 0,App->renderer->camera.h,App->renderer->camera.w,-200 }, PhysType::TERRAIN);
+	//Ground
+	App->physics->CreateRectangle( 0,App->renderer->camera.h,App->renderer->camera.w,-200 , PhysType::TERRAIN);
+	App->physics->CreateCircle(300, 300, 50, PhysType::ENTITY);
 
 	return ret;
 }

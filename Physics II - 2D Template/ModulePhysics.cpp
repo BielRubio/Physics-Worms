@@ -53,9 +53,9 @@ update_status ModulePhysics::PostUpdate()
 			case (PhysType::ENTITY):
 
 				RGBAlpha[0] = 0;
-				RGBAlpha[1] = 0;
+				RGBAlpha[1] = 255;
 				RGBAlpha[2] = 0;
-				RGBAlpha[3] = 0;
+				RGBAlpha[3] = 255;
 				break;
 			case (PhysType::PROJECTILE):
 
@@ -67,7 +67,7 @@ update_status ModulePhysics::PostUpdate()
 			}
 
 			if (body->GetShape() == Shape::RECTANGLE) {
-				SDL_Rect rect = body->GetBounds();
+				SDL_Rect rect = { body->GetPosition().x,body->GetPosition().y,body->GetWidth(),body->GetHeight()};
 
 				App->renderer->DrawQuad(rect, RGBAlpha[0], RGBAlpha[1], RGBAlpha[2], RGBAlpha[3]);
 				
@@ -75,7 +75,7 @@ update_status ModulePhysics::PostUpdate()
 
 			if (body->GetShape() == Shape::CIRCLE) {
 
-				//App->renderer->DrawCircle(, colorAlpha[0], colorAlpha[1], colorAlpha[2], colorAlpha[3]);
+				App->renderer->DrawCircle(body->GetPosition().x, body->GetPosition().y, body->GetRadius(), RGBAlpha[0], RGBAlpha[1], RGBAlpha[2], RGBAlpha[3]);
 			}
 		}
 	}
@@ -95,19 +95,17 @@ bool ModulePhysics::CleanUp()
 	return true;
 }
 
-Body* ModulePhysics::CreateRectangle(SDL_Rect bounds, PhysType type) {
+Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) {
 
-	Body* body = new Body(bounds,type);
-
-	body->shape = Shape::RECTANGLE;
+	Body* body = new Body(x,y,w,h,type);
 	
 	bodyList.add(body);
 
 	return body;
 }
-Body* ModulePhysics::CreateCircle() {
+Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 
-	Body* body = new Body();
+	Body* body = new Body(x,y,radius,type);
 
 	bodyList.add(body);
 
