@@ -112,6 +112,18 @@ Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 	return body;
 }
 
+void ModulePhysics::DestroyBody(Body* body) {
+	p2List_item<Body*>* bList; 
+	for (bList = bodyList.getFirst(); bList != NULL; bList->next) {
+		if (bList->data = body) {
+			bodyList.del(bList); 
+			delete body; 
+			body->~Body(); 
+			return; 
+		}
+	}
+}
+
 void Body::SetVelocity(p2Point<float> speed) {
 
 	this->speed = speed; 
@@ -132,3 +144,4 @@ void Body::SetHeigth(int heigth) {
 void Body::OnCollision(Body* body2) {
 
 }
+

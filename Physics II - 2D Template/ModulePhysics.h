@@ -71,8 +71,6 @@ public:
 
 	void OnCollision(Body* body2);
 
-
-
 private:
 
 	p2Point<float> position;
@@ -80,6 +78,7 @@ private:
 	int width, height;
 	int radius;
 	float mass; 
+	unsigned int coefElastic; 
 
 	
 	friend class ModulePhysics;
@@ -87,6 +86,14 @@ public:
 	PhysType type;
 	Shape shape;
 	BodyType btype; 
+
+	//Forces
+	p2Point<float> gravityForce;
+	p2Point<float> bounceForce;
+	p2Point<float> frictionForce;
+	p2Point<float> dragForce;
+	p2Point<float> liftForce;
+	p2Point<float> totalForce;
 
 };
 
@@ -103,7 +110,7 @@ public:
 
 	Body* CreateRectangle(int x, int y, int w, int h, PhysType type);
 	Body* CreateCircle(int x, int y, int radius, PhysType type);
-
+	void DestroyBody(Body* body); 
 	//Col solver
 	//Physics Integrator
 
