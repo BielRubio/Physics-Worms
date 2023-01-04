@@ -105,13 +105,17 @@ public:
 
 	bool Start();
 	update_status PreUpdate();
+	update_status Update();
 	update_status PostUpdate();
 	bool CleanUp();
 
 	Body* CreateRectangle(int x, int y, int w, int h, PhysType type);
 	Body* CreateCircle(int x, int y, int radius, PhysType type);
 	void DestroyBody(Body* body); 
+
 	//Col solver
+	void CheckCollisions();
+
 	//Physics Integrator
 
 private:

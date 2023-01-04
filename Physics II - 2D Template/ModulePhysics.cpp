@@ -23,6 +23,17 @@ bool ModulePhysics::Start()
 // 
 update_status ModulePhysics::PreUpdate()
 {
+	//Debug features input 
+
+	return UPDATE_CONTINUE;
+}
+
+//
+update_status ModulePhysics::Update()
+{
+
+	CheckCollisions();
+
 	return UPDATE_CONTINUE;
 }
 
@@ -61,8 +72,8 @@ update_status ModulePhysics::PostUpdate()
 
 				RGBAlpha[0] = 0;
 				RGBAlpha[1] = 0;
-				RGBAlpha[2] = 0;
-				RGBAlpha[3] = 0;
+				RGBAlpha[2] = 255;
+				RGBAlpha[3] = 255;
 				break;
 			}
 
@@ -121,6 +132,60 @@ void ModulePhysics::DestroyBody(Body* body) {
 			body->~Body(); 
 			return; 
 		}
+	}
+}
+
+void ModulePhysics::CheckCollisions() {
+
+	//Check every body on the list between each other to see if they are colliding
+	for (p2List_item<Body*>* bodyNode1 = bodyList.getFirst(); bodyNode1 != nullptr; bodyNode1 = bodyNode1->next) {
+		for (p2List_item<Body*>* bodyNode2 = bodyList.getFirst(); bodyNode2 != nullptr; bodyNode2 = bodyNode2->next) {
+
+			Body* body1 = bodyNode1->data;
+			Body* body2 = bodyNode2->data;
+
+			if (body1 == body2) {
+				continue;
+			}
+			
+			//If both bodies are rectangles
+			if (body1->shape == Shape::RECTANGLE && body2->shape == Shape::RECTANGLE) {
+
+				if ((body1->GetPosition().x < body2->GetPosition().x + body2->GetWidth()) &&
+					(body1->GetPosition().x + body1->GetWidth() > body2->GetPosition().x) &&
+					(body1->GetPosition().y < body2->GetPosition().y + body2->GetHeight()) &&
+					(body1->GetHeight() + body1->GetPosition().y > body2->GetPosition().y)) {
+
+					//Collsion detected
+					LOG("Rectangles Colliding")
+				}
+			}
+
+			//If both bodies are cirles
+			if (body1->shape == Shape::CIRCLE && body2->shape == Shape::CIRCLE) {
+
+				float dx = body1->GetPosition().x - body2->GetPosition().x;
+				float dy = body1->GetPosition().y - body2->GetPosition().y;
+				double distance = sqrt(dx * dx + dy * dy);
+
+				if (distance < (body1->GetRadius() + body2->GetRadius())) {
+
+					//Collsion detected
+					LOG("Circles Colliding")
+				}
+				else {
+					LOG("not");
+				}
+
+			}
+
+			//If one body is a rectangle and the other a circle
+			if (body1->shape != body2->shape) {
+
+			}
+
+		}
+
 	}
 }
 
