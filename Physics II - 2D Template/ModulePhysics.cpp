@@ -23,6 +23,11 @@ bool ModulePhysics::Start()
 // 
 update_status ModulePhysics::PreUpdate()
 {
+
+	if (bodyList.getFirst() != nullptr) {
+		Integrator(); 
+	}
+	
 	return UPDATE_CONTINUE;
 }
 
@@ -95,23 +100,6 @@ bool ModulePhysics::CleanUp()
 	return true;
 }
 
-Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) {
-
-	Body* body = new Body(x,y,w,h,type);
-	
-	bodyList.add(body);
-
-	return body;
-}
-Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
-
-	Body* body = new Body(x,y,radius,type);
-
-	bodyList.add(body);
-
-	return body;
-}
-
 void ModulePhysics::DestroyBody(Body* body) {
 	p2List_item<Body*>* bList; 
 	for (bList = bodyList.getFirst(); bList != NULL; bList->next) {
@@ -123,8 +111,31 @@ void ModulePhysics::DestroyBody(Body* body) {
 		}
 	}
 }
+void ModulePhysics::DebugKeys() {
 
-void Body::SetVelocity(p2Point<float> speed) {
+}
+
+void ModulePhysics::Integrator() {
+
+	p2List_item<Body*>* bList;
+	for (bList = bodyList.getFirst(); bList != nullptr; bList = bList->next) {
+		if (bList->data->btype != BodyType::STATIC) {
+			//Gravity Force
+			float mass = bList->data->GetMass(); 
+			Vector gravity = Vector(GRAVITY_X, GRAVITY_Y); 
+			bList->data->gravityForce = Vector(mass * gravity.x, mass * gravity.y);
+			
+		}
+	}
+}
+
+
+
+
+
+//Body class methods
+
+void Body::SetVelocity(Vector speed) {
 
 	this->speed = speed; 
 }
@@ -139,6 +150,33 @@ void Body::SetWidth(int width) {
 void Body::SetHeigth(int heigth) {
 
 	this->height = heigth;
+}
+void Body::SetMass(unsigned int mass) {
+	this->mass = mass; 
+}
+
+Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) {
+
+	Body* body = new Body(x, y, w, h, type);
+	body->SetVelocity(Vector(0, 0));
+	body->SetMass(100); 
+
+	body->btype = BodyType::STATIC;
+	bodyList.add(body);
+
+	return body;
+}
+Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
+
+	Body* body = new Body(x, y, radius, type);
+	body->SetVelocity(Vector(0, 0));
+	body->SetMass(100);
+
+	body->btype = BodyType::DYNAMIC;
+
+	bodyList.add(body);
+
+	return body;
 }
 
 void Body::OnCollision(Body* body2) {
