@@ -3,6 +3,9 @@
 #include "Globals.h"
 #include "p2Point.h"
 
+#define GRAVITY_X 0.0f
+#define GRAVITY_Y 10.0f
+
 enum class PhysType {
 
 	UNKNOWN = 0,
@@ -22,6 +25,18 @@ enum class BodyType {
 	STATIC,
 	UNKNOWN
 };
+
+//New class created in order to work with vectors instead of p2Point
+class Vector {
+public:
+	Vector() {}
+	~Vector() {}
+
+	Vector(float x, float y) : x(x), y(y) {}; 
+public:
+	float x, y; 
+};
+
 
 class Body {
 public:
@@ -64,20 +79,21 @@ public:
 	Shape GetShape() { return shape; }
 	unsigned int GetMass() { return mass; }
 	//Setters
-	void SetVelocity(p2Point<float> speed);
+	void SetVelocity(Vector speed);
 	void SetPosition(p2Point<float> position); 
 	void SetWidth(int width);
 	void SetHeigth(int heigth);
+	void SetMass(unsigned int mass); 
 
 	void OnCollision(Body* body2);
 
 private:
 
 	p2Point<float> position;
-	p2Point<float> speed; 
+	Vector speed; 
 	int width, height;
 	int radius;
-	float mass; 
+	float mass = 1.0; 
 	unsigned int coefElastic; 
 
 	
@@ -88,12 +104,12 @@ public:
 	BodyType btype; 
 
 	//Forces
-	p2Point<float> gravityForce;
-	p2Point<float> bounceForce;
-	p2Point<float> frictionForce;
-	p2Point<float> dragForce;
-	p2Point<float> liftForce;
-	p2Point<float> totalForce;
+	Vector gravityForce;
+	Vector bounceForce;
+	Vector frictionForce;
+	Vector dragForce;
+	Vector liftForce;
+	Vector totalForce;
 
 };
 
@@ -112,7 +128,8 @@ public:
 	Body* CreateRectangle(int x, int y, int w, int h, PhysType type);
 	Body* CreateCircle(int x, int y, int radius, PhysType type);
 	void DestroyBody(Body* body); 
-
+	void DebugKeys(); 
+	void Integrator();
 	//Col solver
 	void CheckCollisions();
 
