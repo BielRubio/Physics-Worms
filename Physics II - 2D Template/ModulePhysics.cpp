@@ -111,3 +111,24 @@ Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 
 	return body;
 }
+
+void Body::SetVelocity(p2Point<float> speed) {
+
+	this->speed = speed; 
+}
+void Body::SetPosition(p2Point<float> position) {
+
+	this->position = position; 
+}
+void Body::SetWidth(int width) {
+
+	this->width = width;
+}
+void Body::SetHeigth(int heigth) {
+
+	this->height = heigth;
+}
+
+void Body::OnCollision(Body* body2) {
+
+}

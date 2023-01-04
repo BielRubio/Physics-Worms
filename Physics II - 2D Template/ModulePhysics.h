@@ -1,6 +1,7 @@
 #pragma once
 #include "Module.h"
 #include "Globals.h"
+#include "p2Point.h"
 
 enum class PhysType {
 
@@ -15,6 +16,11 @@ enum class Shape {
 	UNKNOWN = 0,
 	RECTANGLE,
 	CIRCLE
+};
+enum class BodyType {
+	DYNAMIC,
+	STATIC,
+	UNKNOWN
 };
 
 class Body {
@@ -36,8 +42,8 @@ public:
 		shape = (Shape)2;
 	}
 	~Body() {}
-
-	p2Point<int> GetPosition() { return position; }
+	//Getters
+	p2Point<float> GetPosition() { return position; }
 	int GetWidth() { return width; }
 	int GetHeight() { return height; }
 	int GetRadius() 
@@ -56,16 +62,32 @@ public:
 	}
 	PhysType GetType() { return type; }
 	Shape GetShape() { return shape; }
+	unsigned int GetMass() { return mass; }
+	//Setters
+	void SetVelocity(p2Point<float> speed);
+	void SetPosition(p2Point<float> position); 
+	void SetWidth(int width);
+	void SetHeigth(int heigth);
+
+	void OnCollision(Body* body2);
+
+
 
 private:
 
-	p2Point<int> position;
+	p2Point<float> position;
+	p2Point<float> speed; 
 	int width, height;
 	int radius;
-	PhysType type;
-	Shape shape;
+	float mass; 
+
 	
 	friend class ModulePhysics;
+public:
+	PhysType type;
+	Shape shape;
+	BodyType btype; 
+
 };
 
 class ModulePhysics : public Module

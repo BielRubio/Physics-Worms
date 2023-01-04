@@ -3,6 +3,7 @@
 #include "Animation.h"
 #include "Globals.h"
 #include "p2Point.h"
+#include "ModulePhysics.h"
 
 struct Object
 {
@@ -24,5 +25,12 @@ public:
 	bool CleanUp();
 
 public:
+	Body* body; 
+	p2Point<float> pos; 
 
+	p2List<Body*> bullets; 
+
+	bool alive = true; 
+
+	bool destroyBullet; 
 };
