@@ -1,7 +1,7 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModulePhysics.h"
-#include "math.h"
+#include <cmath>
 
 ModulePhysics::ModulePhysics(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -17,6 +17,10 @@ bool ModulePhysics::Start()
 {
 	LOG("Creating Physics 2D environment");
 
+	integMethod = INTEGRATION_METHOD::BW_EULER;
+
+	colSolMethod = COL_SOLVER_METHOD::TP_NORM_VEC;
+
 	return true;
 }
 
@@ -25,6 +29,7 @@ update_status ModulePhysics::PreUpdate()
 {
 	
 	//Debug features input 
+	DebugKeys();
 
 	return UPDATE_CONTINUE;
 }
@@ -32,10 +37,50 @@ update_status ModulePhysics::PreUpdate()
 //
 update_status ModulePhysics::Update()
 {
+	//Set title
+	static char integChar[256];
+	static char debugChar[256];
+	static char colChar[256];
+
+	switch (integMethod)
+	{
+	case ModulePhysics::INTEGRATION_METHOD::BW_EULER:
+		sprintf_s(integChar, 256, "BW_Euler");
+		break;
+	case ModulePhysics::INTEGRATION_METHOD::FW_EULER:
+		sprintf_s(integChar, 256, "FW_Euler");
+		break;
+	case ModulePhysics::INTEGRATION_METHOD::VERLET:
+		sprintf_s(integChar, 256, "Verlet");
+		break;
+	default:
+		break;
+	}
+
+	(debug) ? sprintf_s(debugChar, 256, "On") : sprintf_s(debugChar, 256, "Off");
+
+	switch (colSolMethod)
+	{
+	case ModulePhysics::COL_SOLVER_METHOD::TP_NORM_VEC:
+		sprintf_s(colChar, 256, "TP to surface");
+		break;
+	case ModulePhysics::COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+		sprintf_s(colChar, 256, "Iterate 'till contact point");
+		break;
+	default:
+		break;
+	}
+
+	static char title[256];
+	sprintf_s(title, 256, "| Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s |", integChar, debugChar,colChar);
+	App->window->SetTitle(title);
+
+	//Apply forces to all bodies
 	if (bodyList.getFirst() != nullptr) {
 		Integrator();
-		CheckCollisions();
 	}
+
+	CheckCollisions();
 
 	return UPDATE_CONTINUE;
 }
@@ -43,9 +88,6 @@ update_status ModulePhysics::Update()
 // 
 update_status ModulePhysics::PostUpdate()
 {
-	if(App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
-		debug = !debug;
-
 	if(!debug)
 		return UPDATE_CONTINUE;
 
@@ -142,8 +184,8 @@ void ModulePhysics::CheckCollisions() {
 					(body1->GetPosition().y < body2->GetPosition().y + body2->GetHeight()) &&
 					(body1->GetHeight() + body1->GetPosition().y > body2->GetPosition().y)) {
 
-					//Collsion detected
-					LOG("Rectangles Colliding")
+					//Collision detected
+					CollisionSolver(body1, body2);
 				}
 			}
 
@@ -156,18 +198,50 @@ void ModulePhysics::CheckCollisions() {
 
 				if (distance < (body1->GetRadius() + body2->GetRadius())) {
 
-					//Collsion detected
-					LOG("Circles Colliding")
+					//Collision detected
+					CollisionSolver(body1, body2);
 				}
-				else {
-					LOG("not");
-				}
-
 			}
 
 			//If one body is a rectangle and the other a circle
 			if (body1->shape != body2->shape) {
 
+				Body* rect;
+				Body* circ;
+
+				if (body1->shape == Shape::RECTANGLE) {
+					rect = body1;
+					circ = body2;
+				}
+				else {
+					rect = body2;
+					circ = body1;
+				}
+				
+				float testX = circ->GetPosition().x;
+				float testY = circ->GetPosition().y;
+
+				// which edge is closest?
+				if (circ->GetPosition().x < rect->GetPosition().x)         
+					testX = rect->GetPosition().x;      // test left edge
+				else if (circ->GetPosition().x > rect->GetPosition().x + rect->GetWidth()) 
+					testX = rect->GetPosition().x + rect->GetWidth();   // right edge
+				if (circ->GetPosition().y < rect->GetPosition().y)         
+					testY = rect->GetPosition().y;      // top edge
+				else if (circ->GetPosition().y > rect->GetPosition().y + rect->GetHeight())
+					testY = rect->GetPosition().y + rect->GetHeight();   // bottom edge
+
+				// get distance from closest edges
+				float distX = circ->GetPosition().x - testX;
+				float distY = circ->GetPosition().y - testY;
+				float distance = sqrt((distX * distX) + (distY * distY));
+
+				// if the distance is less than the radius, collision!
+				if (distance <= circ->GetRadius()) {
+
+					//Collision detected
+					CollisionSolver(body1, body2);
+				}
 			}
 
 		}
@@ -176,6 +250,42 @@ void ModulePhysics::CheckCollisions() {
 }
 void ModulePhysics::DebugKeys() {
 
+	//Integration Method
+	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_STATE::KEY_DOWN) {
+		switch (integMethod)
+		{
+		case INTEGRATION_METHOD::BW_EULER:
+			integMethod = INTEGRATION_METHOD::FW_EULER;
+			break;
+		case INTEGRATION_METHOD::FW_EULER:
+			integMethod = INTEGRATION_METHOD::VERLET;
+			break;
+		case INTEGRATION_METHOD::VERLET:
+			integMethod = INTEGRATION_METHOD::BW_EULER;
+			break;
+		default:
+			break;
+		}
+	}
+
+	//Debug Draw
+	if (App->input->GetKey(SDL_SCANCODE_F2) == KEY_STATE::KEY_DOWN)
+		debug = (!debug) ? true : false;
+
+	//Collision Solving Scheme
+	if (App->input->GetKey(SDL_SCANCODE_F3) == KEY_STATE::KEY_DOWN) {
+		switch (colSolMethod)
+		{
+		case COL_SOLVER_METHOD::TP_NORM_VEC:
+			colSolMethod = COL_SOLVER_METHOD::ITERATE_CONTACT_POINT;
+			break;
+		case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+			colSolMethod = COL_SOLVER_METHOD::TP_NORM_VEC;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void ModulePhysics::Integrator() {
@@ -190,6 +300,34 @@ void ModulePhysics::Integrator() {
 			
 		}
 	}
+}
+
+void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
+
+	switch (colSolMethod)
+	{
+	case COL_SOLVER_METHOD::TP_NORM_VEC:
+
+		if (b1->btype != BodyType::STATIC) {
+			
+			float dY = b1->GetPosition().y - b2->GetPosition().y;
+
+			p2Point<float> newPos;
+			newPos.x = b2->GetPosition().x; 
+			newPos.y = b2->GetPosition().y - (b2->GetHeight() - dY);
+
+			b2->SetPosition(newPos);
+		}
+
+		break;
+	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+
+
+		break;
+	default:
+		break;
+	}
+
 }
 
 
@@ -224,7 +362,7 @@ Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) 
 	body->SetVelocity(Vector(0, 0));
 	body->SetMass(100); 
 
-	body->btype = BodyType::STATIC;
+	body->btype = BodyType::DYNAMIC;
 	bodyList.add(body);
 
 	return body;

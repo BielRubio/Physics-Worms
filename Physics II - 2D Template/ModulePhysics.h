@@ -20,6 +20,7 @@ enum class Shape {
 	RECTANGLE,
 	CIRCLE
 };
+
 enum class BodyType {
 	DYNAMIC,
 	STATIC,
@@ -125,19 +126,34 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
+	//Creates a rectangle shaped body (Don't set w or h as negative)
 	Body* CreateRectangle(int x, int y, int w, int h, PhysType type);
+	//Creates a circle shaped body
 	Body* CreateCircle(int x, int y, int radius, PhysType type);
 	void DestroyBody(Body* body); 
 	void DebugKeys(); 
 	void Integrator();
-	//Col solver
 	void CheckCollisions();
-
-	//Physics Integrator
+	void CollisionSolver(Body* b1, Body* b2);
 
 private:
 
 	bool debug;
+
+	enum class INTEGRATION_METHOD {
+		BW_EULER,
+		FW_EULER,
+		VERLET
+	};
+
+	INTEGRATION_METHOD integMethod;
+
+	enum class COL_SOLVER_METHOD {
+		TP_NORM_VEC,
+		ITERATE_CONTACT_POINT
+	};
+
+	COL_SOLVER_METHOD colSolMethod;
 
 	p2List<Body*> bodyList;
 };
