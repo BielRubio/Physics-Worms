@@ -26,6 +26,8 @@ bool ModulePhysics::Start()
 	terrainPos.y = App->renderer->camera.h - 200;
 	CreateTerrain(terrainPos);
 
+
+
 	return true;
 }
 
@@ -393,9 +395,32 @@ void ModulePhysics::Integrator() {
 			p2Point<float> currentPos = bList->data->GetPosition();
 
 			Vector velocity = bList->data->GetVelocity(); 
+			LOG("Pos before moving: %f, %f", currentPos.x, currentPos.y);
+			LOG("Velocity before moving: %f, %f", velocity.x, velocity.y);
+			LOG("Acceleration before moving: %f, %f", acceleration.x, acceleration.y);
+			switch (integMethod) {
+			case(INTEGRATION_METHOD::BW_EULER):
+				currentPos.x += velocity.x * App->frameDelay; 
+				currentPos.y += velocity.y * App->frameDelay;
 
-			//Switch with dt
+				velocity.x += acceleration.x * App->frameDelay;
+				velocity.y += acceleration.y * App->frameDelay;
+			case(INTEGRATION_METHOD::FW_EULER):
+				velocity.x += acceleration.x * App->frameDelay;
+				velocity.y += acceleration.y * App->frameDelay;
 
+				currentPos.x += velocity.x * App->frameDelay;
+				currentPos.y += velocity.y * App->frameDelay;
+			case(INTEGRATION_METHOD::VERLET):
+				currentPos.x += velocity.x * App->frameDelay + 0.5 * acceleration.x * App->frameDelay * App->frameDelay;
+				currentPos.y += velocity.y * App->frameDelay + 0.5 * acceleration.y * App->frameDelay * App->frameDelay;
+
+				velocity.x += acceleration.x * App->frameDelay;
+				velocity.y += acceleration.y * App->frameDelay;
+			default: 
+				integMethod = INTEGRATION_METHOD::BW_EULER; 
+			}
+			LOG("Pos before moving: %f, %f", currentPos.x, currentPos.y);
 			bList->data->SetPosition(currentPos);
 
 			bList->data->SetVelocity(velocity); 
@@ -476,7 +501,7 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	terrain->SetWidth(SCREEN_WIDTH); 
 	terrain->SetHeigth(SCREEN_HEIGHT - terrain->position.y); 
 
-	terrain->SetMass(100000); //Value?
+	terrain->SetMass(10000000000); //Value?
 
 	terrain->btype = BodyType::STATIC; 
 	terrain->shape = Shape::RECTANGLE; 
@@ -513,7 +538,7 @@ Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) 
 
 	Body* body = new Body(x, y, w, h, type);
 	body->SetVelocity(Vector(0, 0));
-	body->SetMass(100); 
+	body->SetMass(10); 
 
 	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
 	
@@ -525,7 +550,7 @@ Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 
 	Body* body = new Body(x, y, radius, type);
 	body->SetVelocity(Vector(0, 0));
-	body->SetMass(100);
+	body->SetMass(10);
 
 	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
 

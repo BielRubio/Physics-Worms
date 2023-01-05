@@ -54,7 +54,7 @@ update_status ModulePlayer::Update()
 
 		pbody->SetPosition(newPos);
 	}
-
+	LOG("Position: %f, %f", pbody->GetPosition().x, pbody->GetPosition().y); 
 	return UPDATE_CONTINUE;
 }
 

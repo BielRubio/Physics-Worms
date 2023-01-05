@@ -106,13 +106,13 @@ public:
 	BodyType btype; 
 
 	//Forces
-	Vector gravityForce;
-	Vector bounceForce;
-	Vector frictionForce;
-	Vector dragForce;
-	Vector liftForce;
-	Vector totalForce;
-	Vector jumpPlayerForce; 
+	Vector gravityForce = {0,0};
+	Vector bounceForce = { 0,0 };
+	Vector frictionForce = { 0,0 };
+	Vector dragForce = { 0,0 };
+	Vector liftForce = { 0,0 };
+	Vector totalForce = { 0,0 };
+	Vector jumpPlayerForce = { 0,0 };
 
 };
 
@@ -130,7 +130,7 @@ public:
 
 	float frictionC;
 
-	float dragC;
+	float dragC = 1;
 
 };
 
