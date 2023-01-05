@@ -324,8 +324,9 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 	{
 	case COL_SOLVER_METHOD::TP_NORM_VEC:
 
-		if (b1->btype != BodyType::STATIC) {
+		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
 			
+			LOG("yo")
 			float dY = b1->GetPosition().y - b2->GetPosition().y;
 
 			p2Point<float> newPos;
@@ -333,6 +334,11 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 			newPos.y = b2->GetPosition().y - (b2->GetHeight() - dY);
 
 			b2->SetPosition(newPos);
+		}
+
+		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
+
+			//Impulse each object on the contrary direction
 		}
 
 		break;
