@@ -5,15 +5,6 @@
 #include "p2Point.h"
 #include "ModulePhysics.h"
 
-struct Object
-{
-	SDL_Texture* graphic;
-	uint fx;
-
-	Object() : graphic(NULL)
-	{}
-};
-
 class ModulePlayer : public Module
 {
 public:

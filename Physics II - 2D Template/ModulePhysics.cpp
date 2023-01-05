@@ -433,13 +433,20 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
 
 		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
-			while (CheckCollisions(b1,b2)) {
-				
-				
-				float normX = b2->GetVelocity().x / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
-				float normY = b2->GetVelocity().y / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
 
-				LOG("Norm vec: %f %f", b2->GetVelocity().x, b2->GetVelocity().y);
+			if (b2->GetVelocity().x == 0 && b2->GetVelocity().y == 0) 
+				break;
+
+			float normX = b2->GetVelocity().x / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+			float normY = b2->GetVelocity().y / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+
+			while (CheckCollisions(b1,b2)) {
+		
+				p2Point<float> newPos;
+				newPos.x = b2->GetPosition().x - normX;
+				newPos.y = b2->GetPosition().y - normY;
+
+				b2->SetPosition(newPos);
 			}
 		}
 
