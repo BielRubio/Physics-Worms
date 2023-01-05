@@ -359,27 +359,27 @@ void ModulePhysics::Integrator() {
 			LOG("Gravity: %f", bList->data->gravityForce.y);
 
 			//Friction force
-			if (bList->data->GetSpeed().x < 0) {
+			if (bList->data->GetVelocity().x < 0) {
 				bList->data->frictionForce.x = bList->data->gravityForce.y * terrain->frictionC;
 			}
-			else if (bList->data->GetSpeed().x > 0) {
+			else if (bList->data->GetVelocity().x > 0) {
 				bList->data->frictionForce.x = bList->data->gravityForce.y * -terrain->frictionC;
 			}
 			LOG("Friction: %f", bList->data->frictionForce.x);
 
 			//Drag force
-			if (bList->data->GetSpeed().x < 0) {
-				bList->data->dragForce.x = bList->data->GetSpeed().x * bList->data->GetSpeed().x * terrain->dragC;
+			if (bList->data->GetVelocity().x < 0) {
+				bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * terrain->dragC;
 			}
 			else {
-				bList->data->dragForce.x = -bList->data->GetSpeed().x * bList->data->GetSpeed().x * terrain->dragC;
+				bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * terrain->dragC;
 			}
 
-			if (bList->data->GetSpeed().y < 0) {
-				bList->data->dragForce.y = bList->data->GetSpeed().y * bList->data->GetSpeed().y * terrain->dragC;
+			if (bList->data->GetVelocity().y < 0) {
+				bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * terrain->dragC;
 			}
 			else {
-				bList->data->dragForce.y = -bList->data->GetSpeed().y * bList->data->GetSpeed().y * terrain->dragC;
+				bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * terrain->dragC;
 			}
 
 			//Addition of all the forces in order to calculate the acceleration
@@ -392,7 +392,7 @@ void ModulePhysics::Integrator() {
 
 			p2Point<float> currentPos = bList->data->GetPosition();
 
-			Vector velocity = bList->data->GetSpeed(); 
+			Vector velocity = bList->data->GetVelocity(); 
 
 			//Switch with dt
 
