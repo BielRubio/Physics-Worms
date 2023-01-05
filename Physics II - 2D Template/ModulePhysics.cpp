@@ -362,7 +362,8 @@ Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) 
 	body->SetVelocity(Vector(0, 0));
 	body->SetMass(100); 
 
-	body->btype = BodyType::DYNAMIC;
+	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
+	
 	bodyList.add(body);
 
 	return body;
@@ -373,7 +374,7 @@ Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 	body->SetVelocity(Vector(0, 0));
 	body->SetMass(100);
 
-	body->btype = BodyType::DYNAMIC;
+	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
 
 	bodyList.add(body);
 
