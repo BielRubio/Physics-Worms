@@ -138,5 +138,13 @@ private:
 
 	bool debug;
 
+	enum class INTEGRATION_METHOD {
+		BW_EULER,
+		FW_EULER,
+		VERLET
+	};
+
+	INTEGRATION_METHOD integMethod;
+
 	p2List<Body*> bodyList;
 };

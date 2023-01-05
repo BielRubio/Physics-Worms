@@ -23,12 +23,9 @@ bool ModulePhysics::Start()
 // 
 update_status ModulePhysics::PreUpdate()
 {
-
-	if (bodyList.getFirst() != nullptr) {
-		Integrator(); 
-	}
 	
 	//Debug features input 
+	DebugKeys();
 
 	return UPDATE_CONTINUE;
 }
@@ -36,6 +33,35 @@ update_status ModulePhysics::PreUpdate()
 //
 update_status ModulePhysics::Update()
 {
+	//Set title
+	static char integChar[256];
+	static char debugChar[256];
+
+	switch (integMethod)
+	{
+	case ModulePhysics::INTEGRATION_METHOD::BW_EULER:
+		sprintf_s(integChar, 256, "BW_Euler");
+		break;
+	case ModulePhysics::INTEGRATION_METHOD::FW_EULER:
+		sprintf_s(integChar, 256, "FW_Euler");
+		break;
+	case ModulePhysics::INTEGRATION_METHOD::VERLET:
+		sprintf_s(integChar, 256, "Verlet");
+		break;
+	default:
+		break;
+	}
+
+	(debug) ? sprintf_s(debugChar, 256, "On") : sprintf_s(debugChar, 256, "Off");
+
+	static char title[256];
+	sprintf_s(title, 256, "Integ. Method (F1): %s Debug Draw (F2): %s", integChar, debugChar);
+	App->window->SetTitle(title);
+
+	//Apply forces to all bodies
+	if (bodyList.getFirst() != nullptr) {
+		Integrator();
+	}
 
 	CheckCollisions();
 
@@ -45,9 +71,6 @@ update_status ModulePhysics::Update()
 // 
 update_status ModulePhysics::PostUpdate()
 {
-	if(App->input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN)
-		debug = !debug;
-
 	if(!debug)
 		return UPDATE_CONTINUE;
 
@@ -200,7 +223,7 @@ void ModulePhysics::CheckCollisions() {
 				if (distance <= circ->GetRadius()) {
 
 					//Collision detected
-					LOG("Coll yay!!");
+					LOG("Rect/Circ Colliding");
 				}
 			}
 
@@ -210,6 +233,25 @@ void ModulePhysics::CheckCollisions() {
 }
 void ModulePhysics::DebugKeys() {
 
+	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_STATE::KEY_DOWN) {
+		switch (integMethod)
+		{
+		case INTEGRATION_METHOD::BW_EULER:
+			integMethod = INTEGRATION_METHOD::FW_EULER;
+			break;
+		case INTEGRATION_METHOD::FW_EULER:
+			integMethod = INTEGRATION_METHOD::VERLET;
+			break;
+		case INTEGRATION_METHOD::VERLET:
+			integMethod = INTEGRATION_METHOD::BW_EULER;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_F2) == KEY_STATE::KEY_DOWN)
+		debug = (!debug) ? true : false;
 }
 
 void ModulePhysics::Integrator() {
