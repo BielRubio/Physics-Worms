@@ -90,7 +90,7 @@ public:
 
 private:
 
-	p2Point<float> position;
+	p2Point<float> position, LastPosition;
 	Vector speed; 
 	int width, height;
 	int radius;
