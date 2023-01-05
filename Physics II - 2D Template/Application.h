@@ -30,6 +30,11 @@ private:
 	p2List<Module*> list_modules;
 
 public:
+	int FPS = 30;
+	int frameDelay = 1000 / FPS;
+
+	Uint32 frameStart;
+	int frameTime;
 
 	Application();
 	~Application();

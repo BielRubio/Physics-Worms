@@ -79,7 +79,7 @@ public:
 	PhysType GetType() { return type; }
 	Shape GetShape() { return shape; }
 	unsigned int GetMass() { return mass; }
-	Vector GetSpeed() { return speed; }
+	Vector GetVelocity() { return speed; }
 	//Setters
 	void SetVelocity(Vector speed);
 	void SetPosition(p2Point<float> position); 
@@ -91,7 +91,7 @@ public:
 
 private:
 
-	p2Point<float> position;
+	p2Point<float> position, LastPosition;
 	Vector speed; 
 	int width, height;
 	int radius;
@@ -153,13 +153,14 @@ public:
 	void DestroyBody(Body* body); 
 	void DebugKeys(); 
 	void Integrator();
-	void CheckCollisions();
+	bool CheckCollisions(Body* b1 = nullptr, Body* b2 = nullptr);
 	void CollisionSolver(Body* b1, Body* b2);
 	void CreateTerrain(p2Point<float> pos);
 
 private:
 
 	bool debug;
+	bool fps30 = true;
 
 	enum class INTEGRATION_METHOD {
 		BW_EULER,
@@ -171,7 +172,8 @@ private:
 
 	enum class COL_SOLVER_METHOD {
 		TP_NORM_VEC,
-		ITERATE_CONTACT_POINT
+		ITERATE_CONTACT_POINT,
+		BACK_TO_LAST_POINT
 	};
 
 	COL_SOLVER_METHOD colSolMethod;

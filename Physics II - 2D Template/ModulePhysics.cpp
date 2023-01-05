@@ -72,20 +72,34 @@ update_status ModulePhysics::Update()
 	case ModulePhysics::COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
 		sprintf_s(colChar, 256, "Iterate 'till contact point");
 		break;
+	case ModulePhysics::COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
+		sprintf_s(colChar, 256, "Back to last point");
+		break;
 	default:
 		break;
 	}
 
 	static char title[256];
-	sprintf_s(title, 256, "| Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s |", integChar, debugChar,colChar);
+	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %d (F4 add, F5 substract, F6 switch between FPS schemes)", integChar, debugChar,colChar, App->FPS);
 	App->window->SetTitle(title);
 
 	//Apply forces to all bodies
 	if (bodyList.getFirst() != nullptr) {
 		Integrator();
 	}
-
 	CheckCollisions();
+
+	if (bodyList.getFirst() != nullptr && colSolMethod == ModulePhysics::COL_SOLVER_METHOD::BACK_TO_LAST_POINT) {
+		for (p2List_item<Body*>* bodyNode = bodyList.getFirst(); bodyNode != nullptr; bodyNode = bodyNode->next) {
+
+			Body* body = bodyNode->data;
+
+			// Save last position
+			body->LastPosition = body->position;
+
+		}
+	}
+
 
 	return UPDATE_CONTINUE;
 }
@@ -168,7 +182,9 @@ void ModulePhysics::DestroyBody(Body* body) {
 	}
 }
 
-void ModulePhysics::CheckCollisions() {
+bool ModulePhysics::CheckCollisions(Body* b1, Body* b2) {
+
+	bool returnBool = (b1 == nullptr || b2 == nullptr) ? false : true;
 
 	//Check every body on the list between each other to see if they are colliding
 	for (p2List_item<Body*>* bodyNode1 = bodyList.getFirst(); bodyNode1 != nullptr; bodyNode1 = bodyNode1->next) {
@@ -190,7 +206,11 @@ void ModulePhysics::CheckCollisions() {
 					(body1->GetHeight() + body1->GetPosition().y > body2->GetPosition().y)) {
 
 					//Collision detected
-					CollisionSolver(body1, body2);
+					if (returnBool)
+						return true;
+					else
+						CollisionSolver(body1, body2);
+					LOG("Ayo");
 				}
 			}
 
@@ -204,7 +224,10 @@ void ModulePhysics::CheckCollisions() {
 				if (distance < (body1->GetRadius() + body2->GetRadius())) {
 
 					//Collision detected
-					CollisionSolver(body1, body2);
+					if (returnBool)
+						return true;
+					else
+						CollisionSolver(body1, body2);
 				}
 			}
 
@@ -245,13 +268,17 @@ void ModulePhysics::CheckCollisions() {
 				if (distance <= circ->GetRadius()) {
 
 					//Collision detected
-					CollisionSolver(body1, body2);
+					if (returnBool)
+						return true;
+					else
+						CollisionSolver(body1, body2);
 				}
 			}
 
 		}
-
 	}
+
+	return false;
 }
 void ModulePhysics::DebugKeys() {
 
@@ -285,10 +312,36 @@ void ModulePhysics::DebugKeys() {
 			colSolMethod = COL_SOLVER_METHOD::ITERATE_CONTACT_POINT;
 			break;
 		case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+			colSolMethod = COL_SOLVER_METHOD::BACK_TO_LAST_POINT;
+			break;
+		case COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
 			colSolMethod = COL_SOLVER_METHOD::TP_NORM_VEC;
 			break;
 		default:
 			break;
+		}
+	}
+	//Delta time
+	if (App->input->GetKey(SDL_SCANCODE_F4) == KEY_STATE::KEY_DOWN) {
+		App->FPS++;
+		App->frameDelay = 1000 / App->FPS;
+	}
+	if (App->input->GetKey(SDL_SCANCODE_F5) == KEY_STATE::KEY_DOWN) {
+		if (App->FPS != 1) {
+			App->FPS--;
+			App->frameDelay = 1000 / App->FPS;
+		}
+	}
+	if (App->input->GetKey(SDL_SCANCODE_F6) == KEY_STATE::KEY_DOWN) {
+		if (fps30 == true) {
+			App->FPS = 60;
+			App->frameDelay = 1000 / App->FPS;
+			fps30 = false;
+		}
+		else {
+			App->FPS = 30;
+			App->frameDelay = 1000 / App->FPS;
+			fps30 = true;
 		}
 	}
 }
@@ -360,7 +413,7 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 	{
 	case COL_SOLVER_METHOD::TP_NORM_VEC:
 
-		if (b1->btype != BodyType::STATIC) {
+		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
 			
 			float dY = b1->GetPosition().y - b2->GetPosition().y;
 
@@ -371,9 +424,41 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 			b2->SetPosition(newPos);
 		}
 
+		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
+
+			//Impulse each object on the contrary direction
+		}
+
 		break;
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
 
+		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
+			while (!CheckCollisions(b1,b2)) {
+				LOG("Lol");
+				Vector normVel;
+				normVel.x = b2->GetVelocity().x / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+				normVel.y = b2->GetVelocity().y / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+
+				LOG("Norm vec: %f %f", normVel.x, normVel.y);
+			}
+		}
+
+		break;
+	case COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
+
+		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
+			b1->position = b1->LastPosition;
+			//b2->position = b2->LastPosition;
+
+		}
+		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::STATIC) {
+			b1->position = b1->LastPosition;
+
+		}
+		if (b1->btype == BodyType::STATIC && b2->btype == BodyType::DYNAMIC) {
+			b2->position = b2->LastPosition;
+
+		}
 
 		break;
 	default:
@@ -430,7 +515,8 @@ Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) 
 	body->SetVelocity(Vector(0, 0));
 	body->SetMass(100); 
 
-	body->btype = BodyType::DYNAMIC;
+	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
+	
 	bodyList.add(body);
 
 	return body;
@@ -441,7 +527,7 @@ Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 	body->SetVelocity(Vector(0, 0));
 	body->SetMass(100);
 
-	body->btype = BodyType::DYNAMIC;
+	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
 
 	bodyList.add(body);
 

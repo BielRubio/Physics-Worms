@@ -52,8 +52,10 @@ int main(int argc, char ** argv)
 
 		case MAIN_UPDATE:
 		{
+			App->frameStart = SDL_GetTicks();
+			
 			int update_return = App->Update();
-
+			
 			if (update_return == UPDATE_ERROR)
 			{
 				LOG("Application Update exits with ERROR");
@@ -62,6 +64,12 @@ int main(int argc, char ** argv)
 
 			if (update_return == UPDATE_STOP)
 				state = MAIN_FINISH;
+			
+			App->frameTime = SDL_GetTicks() - App->frameStart;
+			if (App->frameDelay > App->frameTime) {
+				SDL_Delay(App->frameDelay - App->frameTime);
+			}
+
 		}
 			break;
 
