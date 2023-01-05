@@ -75,7 +75,7 @@ update_status ModulePhysics::Update()
 	}
 
 	static char title[256];
-	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s", integChar, debugChar,colChar);
+	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %d (F4 add, F5 substract, F6 switch between FPS schemes)", integChar, debugChar,colChar, App->FPS);
 	App->window->SetTitle(title);
 
 	//Apply forces to all bodies
@@ -314,6 +314,29 @@ void ModulePhysics::DebugKeys() {
 			break;
 		default:
 			break;
+		}
+	}
+	//Delta time
+	if (App->input->GetKey(SDL_SCANCODE_F4) == KEY_STATE::KEY_DOWN) {
+		App->FPS++;
+		App->frameDelay = 1000 / App->FPS;
+	}
+	if (App->input->GetKey(SDL_SCANCODE_F5) == KEY_STATE::KEY_DOWN) {
+		if (App->FPS != 1) {
+			App->FPS--;
+			App->frameDelay = 1000 / App->FPS;
+		}
+	}
+	if (App->input->GetKey(SDL_SCANCODE_F6) == KEY_STATE::KEY_DOWN) {
+		if (fps30 == true) {
+			App->FPS = 60;
+			App->frameDelay = 1000 / App->FPS;
+			fps30 = false;
+		}
+		else {
+			App->FPS = 30;
+			App->frameDelay = 1000 / App->FPS;
+			fps30 = true;
 		}
 	}
 }
