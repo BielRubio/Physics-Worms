@@ -1,7 +1,7 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModulePhysics.h"
-#include "math.h"
+#include <cmath>
 
 ModulePhysics::ModulePhysics(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -144,7 +144,7 @@ void ModulePhysics::CheckCollisions() {
 					(body1->GetPosition().y < body2->GetPosition().y + body2->GetHeight()) &&
 					(body1->GetHeight() + body1->GetPosition().y > body2->GetPosition().y)) {
 
-					//Collsion detected
+					//Collision detected
 					LOG("Rectangles Colliding")
 				}
 			}
@@ -158,18 +158,44 @@ void ModulePhysics::CheckCollisions() {
 
 				if (distance < (body1->GetRadius() + body2->GetRadius())) {
 
-					//Collsion detected
+					//Collision detected
 					LOG("Circles Colliding")
 				}
-				else {
-					LOG("not");
-				}
-
 			}
 
 			//If one body is a rectangle and the other a circle
 			if (body1->shape != body2->shape) {
 
+				Body* rect;
+				Body* circ;
+
+				if (body1->shape == Shape::RECTANGLE) {
+					rect = body1;
+					circ = body2;
+				}
+				else {
+					rect = body2;
+					circ = body1;
+				}
+				
+				float circDistanceX = abs(circ->GetPosition().x - rect->GetPosition().x);
+				float circDistanceY = abs(circ->GetPosition().y - rect->GetPosition().y);
+
+				if (!(circDistanceX > (rect->GetWidth() / 2 + circ->GetRadius()) && 
+					circDistanceY > (rect->GetHeight() / 2 + circ->GetRadius())) && 
+					(circDistanceX <= (rect->GetWidth() / 2) && 
+					circDistanceY <= (rect->GetHeight() / 2))) {
+
+					float cornerDistance_sq = pow((circDistanceX - rect->GetWidth() / 2),2) + pow((circDistanceY - rect->GetHeight() / 2),2);
+
+					if (cornerDistance_sq <= pow(circ->GetRadius(),2)) {
+
+						//Collision detected
+						LOG("Colliding");
+					}
+				}
+				
+				
 			}
 
 		}

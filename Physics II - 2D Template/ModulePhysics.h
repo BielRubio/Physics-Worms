@@ -125,15 +125,14 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
+	//Creates a rectangle shaped body (Don't set w or h as negative)
 	Body* CreateRectangle(int x, int y, int w, int h, PhysType type);
+	//Creates a circle shaped body
 	Body* CreateCircle(int x, int y, int radius, PhysType type);
 	void DestroyBody(Body* body); 
 	void DebugKeys(); 
 	void Integrator();
-	//Col solver
 	void CheckCollisions();
-
-	//Physics Integrator
 
 private:
 
