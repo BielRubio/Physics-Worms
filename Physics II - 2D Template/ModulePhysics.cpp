@@ -67,6 +67,9 @@ update_status ModulePhysics::Update()
 	case ModulePhysics::COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
 		sprintf_s(colChar, 256, "Iterate 'till contact point");
 		break;
+	case ModulePhysics::COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
+		sprintf_s(colChar, 256, "Back to last point");
+		break;
 	default:
 		break;
 	}
@@ -79,7 +82,8 @@ update_status ModulePhysics::Update()
 	if (bodyList.getFirst() != nullptr) {
 		Integrator();
 	}
-	if (bodyList.getFirst() != nullptr && colSolMethod == ModulePhysics::COL_SOLVER_METHOD::ITERATE_CONTACT_POINT) {
+	CheckCollisions();
+	if (bodyList.getFirst() != nullptr && colSolMethod == ModulePhysics::COL_SOLVER_METHOD::BACK_TO_LAST_POINT) {
 		for (p2List_item<Body*>* bodyNode = bodyList.getFirst(); bodyNode != nullptr; bodyNode = bodyNode->next) {
 
 			Body* body = bodyNode->data;
@@ -89,7 +93,7 @@ update_status ModulePhysics::Update()
 
 		}
 	}
-	CheckCollisions();
+
 
 	return UPDATE_CONTINUE;
 }
@@ -289,6 +293,9 @@ void ModulePhysics::DebugKeys() {
 			colSolMethod = COL_SOLVER_METHOD::ITERATE_CONTACT_POINT;
 			break;
 		case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+			colSolMethod = COL_SOLVER_METHOD::BACK_TO_LAST_POINT;
+			break;
+		case COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
 			colSolMethod = COL_SOLVER_METHOD::TP_NORM_VEC;
 			break;
 		default:
@@ -330,6 +337,9 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 		break;
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+
+		break;
+	case COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
 		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
 			b1->position = b1->LastPosition;
 			//b2->position = b2->LastPosition;
