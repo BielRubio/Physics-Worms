@@ -75,7 +75,7 @@ update_status ModulePhysics::Update()
 	}
 
 	static char title[256];
-	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %d (F4 add, F5 substract, F6 switch between FPS schemes)", integChar, debugChar,colChar, App->FPS);
+	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %d (F4 add, F5 substract, F6 30/60)", integChar, debugChar,colChar, App->FPS);
 	App->window->SetTitle(title);
 
 	//Apply forces to all bodies
@@ -205,7 +205,6 @@ bool ModulePhysics::CheckCollisions(Body* b1, Body* b2) {
 						return true;
 					else
 						CollisionSolver(body1, body2);
-					LOG("Ayo");
 				}
 			}
 
@@ -316,16 +315,17 @@ void ModulePhysics::DebugKeys() {
 			break;
 		}
 	}
+
 	//Delta time
-	if (App->input->GetKey(SDL_SCANCODE_F4) == KEY_STATE::KEY_DOWN) {
-		App->FPS++;
-		App->frameDelay = 1000 / App->FPS;
-	}
-	if (App->input->GetKey(SDL_SCANCODE_F5) == KEY_STATE::KEY_DOWN) {
+	if (App->input->GetKey(SDL_SCANCODE_F4) == KEY_STATE::KEY_REPEAT) {
 		if (App->FPS != 1) {
 			App->FPS--;
 			App->frameDelay = 1000 / App->FPS;
 		}
+	}
+	if (App->input->GetKey(SDL_SCANCODE_F5) == KEY_STATE::KEY_REPEAT) {
+		App->FPS++;
+		App->frameDelay = 1000 / App->FPS;
 	}
 	if (App->input->GetKey(SDL_SCANCODE_F6) == KEY_STATE::KEY_DOWN) {
 		if (fps30 == true) {
@@ -381,13 +381,13 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
 
 		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
-			while (!CheckCollisions(b1,b2)) {
-				LOG("Lol");
-				Vector normVel;
-				normVel.x = b2->GetVelocity().x / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
-				normVel.y = b2->GetVelocity().y / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+			while (CheckCollisions(b1,b2)) {
+				
+				
+				float normX = b2->GetVelocity().x / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+				float normY = b2->GetVelocity().y / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
 
-				LOG("Norm vec: %f %f", normVel.x, normVel.y);
+				LOG("Norm vec: %f %f", b2->GetVelocity().x, b2->GetVelocity().y);
 			}
 		}
 
