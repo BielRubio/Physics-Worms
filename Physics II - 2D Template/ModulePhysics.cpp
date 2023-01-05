@@ -23,10 +23,6 @@ bool ModulePhysics::Start()
 // 
 update_status ModulePhysics::PreUpdate()
 {
-
-	if (bodyList.getFirst() != nullptr) {
-		Integrator(); 
-	}
 	
 	//Debug features input 
 
@@ -36,8 +32,10 @@ update_status ModulePhysics::PreUpdate()
 //
 update_status ModulePhysics::Update()
 {
-
-	CheckCollisions();
+	if (bodyList.getFirst() != nullptr) {
+		Integrator();
+		CheckCollisions();
+	}
 
 	return UPDATE_CONTINUE;
 }
