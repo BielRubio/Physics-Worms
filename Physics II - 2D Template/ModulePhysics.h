@@ -79,6 +79,7 @@ public:
 	PhysType GetType() { return type; }
 	Shape GetShape() { return shape; }
 	unsigned int GetMass() { return mass; }
+	Vector GetVelocity() { return speed; }
 	//Setters
 	void SetVelocity(Vector speed);
 	void SetPosition(p2Point<float> position); 
@@ -133,7 +134,7 @@ public:
 	void DestroyBody(Body* body); 
 	void DebugKeys(); 
 	void Integrator();
-	void CheckCollisions();
+	bool CheckCollisions(Body* b1 = nullptr, Body* b2 = nullptr);
 	void CollisionSolver(Body* b1, Body* b2);
 
 private:

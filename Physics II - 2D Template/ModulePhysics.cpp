@@ -177,7 +177,9 @@ void ModulePhysics::DestroyBody(Body* body) {
 	}
 }
 
-void ModulePhysics::CheckCollisions() {
+bool ModulePhysics::CheckCollisions(Body* b1, Body* b2) {
+
+	bool returnBool = (b1 == nullptr || b2 == nullptr) ? false : true;
 
 	//Check every body on the list between each other to see if they are colliding
 	for (p2List_item<Body*>* bodyNode1 = bodyList.getFirst(); bodyNode1 != nullptr; bodyNode1 = bodyNode1->next) {
@@ -199,7 +201,11 @@ void ModulePhysics::CheckCollisions() {
 					(body1->GetHeight() + body1->GetPosition().y > body2->GetPosition().y)) {
 
 					//Collision detected
-					CollisionSolver(body1, body2);
+					if (returnBool)
+						return true;
+					else
+						CollisionSolver(body1, body2);
+					LOG("Ayo");
 				}
 			}
 
@@ -213,7 +219,10 @@ void ModulePhysics::CheckCollisions() {
 				if (distance < (body1->GetRadius() + body2->GetRadius())) {
 
 					//Collision detected
-					CollisionSolver(body1, body2);
+					if (returnBool)
+						return true;
+					else
+						CollisionSolver(body1, body2);
 				}
 			}
 
@@ -254,13 +263,17 @@ void ModulePhysics::CheckCollisions() {
 				if (distance <= circ->GetRadius()) {
 
 					//Collision detected
-					CollisionSolver(body1, body2);
+					if (returnBool)
+						return true;
+					else
+						CollisionSolver(body1, body2);
 				}
 			}
 
 		}
-
 	}
+
+	return false;
 }
 void ModulePhysics::DebugKeys() {
 
@@ -327,7 +340,6 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
 			
-			LOG("yo")
 			float dY = b1->GetPosition().y - b2->GetPosition().y;
 
 			p2Point<float> newPos;
@@ -345,8 +357,20 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 		break;
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
 
+		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
+			while (!CheckCollisions(b1,b2)) {
+				LOG("Lol");
+				Vector normVel;
+				normVel.x = b2->GetVelocity().x / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+				normVel.y = b2->GetVelocity().y / (sqrt(pow(b2->GetVelocity().x, 2) + pow(b2->GetVelocity().y, 2)));
+
+				LOG("Norm vec: %f %f", normVel.x, normVel.y);
+			}
+		}
+
 		break;
 	case COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
+
 		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
 			b1->position = b1->LastPosition;
 			//b2->position = b2->LastPosition;
