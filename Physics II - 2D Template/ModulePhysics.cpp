@@ -72,13 +72,16 @@ update_status ModulePhysics::Update()
 	}
 
 	static char title[256];
-	sprintf_s(title, 256, "| Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s |", integChar, debugChar,colChar);
+	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s", integChar, debugChar,colChar);
 	App->window->SetTitle(title);
 
 	//Apply forces to all bodies
 	if (bodyList.getFirst() != nullptr) {
 		Integrator();
 	}
+	
+	CheckCollisions();
+
 	if (bodyList.getFirst() != nullptr && colSolMethod == ModulePhysics::COL_SOLVER_METHOD::ITERATE_CONTACT_POINT) {
 		for (p2List_item<Body*>* bodyNode = bodyList.getFirst(); bodyNode != nullptr; bodyNode = bodyNode->next) {
 
@@ -89,7 +92,6 @@ update_status ModulePhysics::Update()
 
 		}
 	}
-	CheckCollisions();
 
 	return UPDATE_CONTINUE;
 }

@@ -25,8 +25,6 @@ bool ModuleSceneIntro::Start()
 	//Ground
 	App->physics->CreateRectangle( 0, App->renderer->camera.h - 200, App->renderer->camera.w,200 , PhysType::TERRAIN);
 
-	App->physics->CreateRectangle(70, 100, App->renderer->camera.w, 100, PhysType::TERRAIN);
-	
 	App->physics->CreateCircle(300, 300, 50, PhysType::ENTITY);
 	App->physics->CreateCircle(400, 300, 20, PhysType::PROJECTILE);
 
