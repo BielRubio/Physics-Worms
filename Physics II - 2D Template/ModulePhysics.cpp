@@ -194,7 +194,7 @@ void ModulePhysics::CheckCollisions() {
 					(body1->GetHeight() + body1->GetPosition().y > body2->GetPosition().y)) {
 
 					//Collision detected
-					LOG("Rectangles Colliding")
+					CollisionSolver(body1, body2);
 				}
 			}
 
@@ -208,7 +208,7 @@ void ModulePhysics::CheckCollisions() {
 				if (distance < (body1->GetRadius() + body2->GetRadius())) {
 
 					//Collision detected
-					LOG("Circles Colliding")
+					CollisionSolver(body1, body2);
 				}
 			}
 
@@ -249,7 +249,7 @@ void ModulePhysics::CheckCollisions() {
 				if (distance <= circ->GetRadius()) {
 
 					//Collision detected
-					LOG("Rect/Circ Colliding");
+					CollisionSolver(body1, body2);
 				}
 			}
 
@@ -317,6 +317,16 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 	{
 	case COL_SOLVER_METHOD::TP_NORM_VEC:
 
+		if (b1->btype != BodyType::STATIC) {
+			
+			float dY = b1->GetPosition().y - b2->GetPosition().y;
+
+			p2Point<float> newPos;
+			newPos.x = b2->GetPosition().x; 
+			newPos.y = b2->GetPosition().y - (b2->GetHeight() - dY);
+
+			b2->SetPosition(newPos);
+		}
 
 		break;
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
@@ -373,7 +383,8 @@ Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) 
 	body->SetVelocity(Vector(0, 0));
 	body->SetMass(100); 
 
-	body->btype = BodyType::STATIC;
+	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
+	
 	bodyList.add(body);
 
 	return body;
@@ -384,7 +395,7 @@ Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 	body->SetVelocity(Vector(0, 0));
 	body->SetMass(100);
 
-	body->btype = BodyType::DYNAMIC;
+	body->btype = (body->GetType() != PhysType::TERRAIN) ? BodyType::DYNAMIC : BodyType::STATIC;
 
 	bodyList.add(body);
 

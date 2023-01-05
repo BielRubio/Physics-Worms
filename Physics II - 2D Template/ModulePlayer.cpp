@@ -22,18 +22,19 @@ bool ModulePlayer::Start()
 // Update: draw background
 update_status ModulePlayer::Update()
 {
+	int speed = 5;
 
 	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_STATE::KEY_REPEAT) {
 
 		p2Point<float> newPos;
-		newPos.x = pbody->GetPosition().x - 1;
+		newPos.x = pbody->GetPosition().x - speed;
 		newPos.y = pbody->GetPosition().y;
 
 		pbody->SetPosition(newPos);
 	}
 	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_STATE::KEY_REPEAT) {
 		p2Point<float> newPos;
-		newPos.x = pbody->GetPosition().x + 1;
+		newPos.x = pbody->GetPosition().x + speed;
 		newPos.y = pbody->GetPosition().y;
 
 		pbody->SetPosition(newPos);
@@ -42,14 +43,14 @@ update_status ModulePlayer::Update()
 
 		p2Point<float> newPos;
 		newPos.x = pbody->GetPosition().x;
-		newPos.y = pbody->GetPosition().y - 1;
+		newPos.y = pbody->GetPosition().y - speed;
 
 		pbody->SetPosition(newPos);
 	}
 	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_STATE::KEY_REPEAT) {
 		p2Point<float> newPos;
 		newPos.x = pbody->GetPosition().x;
-		newPos.y = pbody->GetPosition().y + 1;
+		newPos.y = pbody->GetPosition().y + speed;
 
 		pbody->SetPosition(newPos);
 	}
