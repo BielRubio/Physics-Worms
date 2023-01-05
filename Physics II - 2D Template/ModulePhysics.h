@@ -79,6 +79,7 @@ public:
 	PhysType GetType() { return type; }
 	Shape GetShape() { return shape; }
 	unsigned int GetMass() { return mass; }
+	Vector GetSpeed() { return speed; }
 	//Setters
 	void SetVelocity(Vector speed);
 	void SetPosition(p2Point<float> position); 
@@ -111,6 +112,25 @@ public:
 	Vector dragForce;
 	Vector liftForce;
 	Vector totalForce;
+	Vector jumpPlayerForce; 
+
+};
+
+class Terrain {
+public:
+	Terrain() {}
+	~Terrain() {}
+
+	Terrain(Vector gravity, float friction, Body* terrainBody) : gravity(gravity), frictionC(friction), terrainBody(terrainBody) {}
+
+public:
+	Body* terrainBody;
+
+	Vector gravity = Vector(GRAVITY_X, GRAVITY_Y);
+
+	float frictionC;
+
+	float dragC;
 
 };
 
@@ -135,6 +155,7 @@ public:
 	void Integrator();
 	void CheckCollisions();
 	void CollisionSolver(Body* b1, Body* b2);
+	void CreateTerrain(p2Point<float> pos);
 
 private:
 
@@ -156,4 +177,6 @@ private:
 	COL_SOLVER_METHOD colSolMethod;
 
 	p2List<Body*> bodyList;
+
+	Terrain* terrain; 
 };
