@@ -17,6 +17,10 @@ bool ModulePhysics::Start()
 {
 	LOG("Creating Physics 2D environment");
 
+	integMethod = INTEGRATION_METHOD::BW_EULER;
+
+	colSolMethod = COL_SOLVER_METHOD::TP_NORM_VEC;
+
 	return true;
 }
 
@@ -36,6 +40,7 @@ update_status ModulePhysics::Update()
 	//Set title
 	static char integChar[256];
 	static char debugChar[256];
+	static char colChar[256];
 
 	switch (integMethod)
 	{
@@ -54,8 +59,20 @@ update_status ModulePhysics::Update()
 
 	(debug) ? sprintf_s(debugChar, 256, "On") : sprintf_s(debugChar, 256, "Off");
 
+	switch (colSolMethod)
+	{
+	case ModulePhysics::COL_SOLVER_METHOD::TP_NORM_VEC:
+		sprintf_s(colChar, 256, "TP to surface");
+		break;
+	case ModulePhysics::COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+		sprintf_s(colChar, 256, "Iterate 'till contact point");
+		break;
+	default:
+		break;
+	}
+
 	static char title[256];
-	sprintf_s(title, 256, "Integ. Method (F1): %s Debug Draw (F2): %s", integChar, debugChar);
+	sprintf_s(title, 256, "| Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s |", integChar, debugChar,colChar);
 	App->window->SetTitle(title);
 
 	//Apply forces to all bodies
@@ -233,6 +250,7 @@ void ModulePhysics::CheckCollisions() {
 }
 void ModulePhysics::DebugKeys() {
 
+	//Integration Method
 	if (App->input->GetKey(SDL_SCANCODE_F1) == KEY_STATE::KEY_DOWN) {
 		switch (integMethod)
 		{
@@ -250,8 +268,24 @@ void ModulePhysics::DebugKeys() {
 		}
 	}
 
+	//Debug Draw
 	if (App->input->GetKey(SDL_SCANCODE_F2) == KEY_STATE::KEY_DOWN)
 		debug = (!debug) ? true : false;
+
+	//Collision Solving Scheme
+	if (App->input->GetKey(SDL_SCANCODE_F3) == KEY_STATE::KEY_DOWN) {
+		switch (colSolMethod)
+		{
+		case COL_SOLVER_METHOD::TP_NORM_VEC:
+			colSolMethod = COL_SOLVER_METHOD::ITERATE_CONTACT_POINT;
+			break;
+		case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+			colSolMethod = COL_SOLVER_METHOD::TP_NORM_VEC;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void ModulePhysics::Integrator() {
@@ -266,6 +300,24 @@ void ModulePhysics::Integrator() {
 			
 		}
 	}
+}
+
+void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
+
+	switch (colSolMethod)
+	{
+	case COL_SOLVER_METHOD::TP_NORM_VEC:
+
+
+		break;
+	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+
+
+		break;
+	default:
+		break;
+	}
+
 }
 
 

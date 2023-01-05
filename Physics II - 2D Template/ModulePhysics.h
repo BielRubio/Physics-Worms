@@ -20,6 +20,7 @@ enum class Shape {
 	RECTANGLE,
 	CIRCLE
 };
+
 enum class BodyType {
 	DYNAMIC,
 	STATIC,
@@ -133,6 +134,7 @@ public:
 	void DebugKeys(); 
 	void Integrator();
 	void CheckCollisions();
+	void CollisionSolver(Body* b1, Body* b2);
 
 private:
 
@@ -145,6 +147,13 @@ private:
 	};
 
 	INTEGRATION_METHOD integMethod;
+
+	enum class COL_SOLVER_METHOD {
+		TP_NORM_VEC,
+		ITERATE_CONTACT_POINT
+	};
+
+	COL_SOLVER_METHOD colSolMethod;
 
 	p2List<Body*> bodyList;
 };

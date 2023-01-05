@@ -55,5 +55,5 @@ public:
 
 	uint player_lose_fx;
 
-	Body* circ;
+	Body* water;
 };

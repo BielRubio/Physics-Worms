@@ -13,7 +13,48 @@ ModulePlayer::~ModulePlayer()
 bool ModulePlayer::Start()
 {
 	LOG("Loading player");
+
+	pbody = App->physics->CreateRectangle(0,0,30,60,PhysType::ENTITY);
+
 	return true;
+}
+
+// Update: draw background
+update_status ModulePlayer::Update()
+{
+
+	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_STATE::KEY_REPEAT) {
+
+		p2Point<float> newPos;
+		newPos.x = pbody->GetPosition().x - 1;
+		newPos.y = pbody->GetPosition().y;
+
+		pbody->SetPosition(newPos);
+	}
+	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_STATE::KEY_REPEAT) {
+		p2Point<float> newPos;
+		newPos.x = pbody->GetPosition().x + 1;
+		newPos.y = pbody->GetPosition().y;
+
+		pbody->SetPosition(newPos);
+	}
+	if (App->input->GetKey(SDL_SCANCODE_W) == KEY_STATE::KEY_REPEAT) {
+
+		p2Point<float> newPos;
+		newPos.x = pbody->GetPosition().x;
+		newPos.y = pbody->GetPosition().y - 1;
+
+		pbody->SetPosition(newPos);
+	}
+	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_STATE::KEY_REPEAT) {
+		p2Point<float> newPos;
+		newPos.x = pbody->GetPosition().x;
+		newPos.y = pbody->GetPosition().y + 1;
+
+		pbody->SetPosition(newPos);
+	}
+
+	return UPDATE_CONTINUE;
 }
 
 // Unload assets
@@ -24,11 +65,7 @@ bool ModulePlayer::CleanUp()
 	return true;
 }
 
-// Update: draw background
-update_status ModulePlayer::Update()
-{
-	return UPDATE_CONTINUE;
-}
+
 
 
 

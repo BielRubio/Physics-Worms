@@ -26,7 +26,6 @@ public:
 
 public:
 	Body* pbody; 
-	p2Point<float> pos; 
 
 	p2List<Body*> bullets; 
 
