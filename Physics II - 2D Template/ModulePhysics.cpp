@@ -178,24 +178,30 @@ void ModulePhysics::CheckCollisions() {
 					circ = body1;
 				}
 				
-				float circDistanceX = abs(circ->GetPosition().x - rect->GetPosition().x);
-				float circDistanceY = abs(circ->GetPosition().y - rect->GetPosition().y);
+				float testX = circ->GetPosition().x;
+				float testY = circ->GetPosition().y;
 
-				if (!(circDistanceX > (rect->GetWidth() / 2 + circ->GetRadius()) && 
-					circDistanceY > (rect->GetHeight() / 2 + circ->GetRadius())) && 
-					(circDistanceX <= (rect->GetWidth() / 2) && 
-					circDistanceY <= (rect->GetHeight() / 2))) {
+				// which edge is closest?
+				if (circ->GetPosition().x < rect->GetPosition().x)         
+					testX = rect->GetPosition().x;      // test left edge
+				else if (circ->GetPosition().x > rect->GetPosition().x + rect->GetWidth()) 
+					testX = rect->GetPosition().x + rect->GetWidth();   // right edge
+				if (circ->GetPosition().y < rect->GetPosition().y)         
+					testY = rect->GetPosition().y;      // top edge
+				else if (circ->GetPosition().y > rect->GetPosition().y + rect->GetHeight())
+					testY = rect->GetPosition().y + rect->GetHeight();   // bottom edge
 
-					float cornerDistance_sq = pow((circDistanceX - rect->GetWidth() / 2),2) + pow((circDistanceY - rect->GetHeight() / 2),2);
+				// get distance from closest edges
+				float distX = circ->GetPosition().x - testX;
+				float distY = circ->GetPosition().y - testY;
+				float distance = sqrt((distX * distX) + (distY * distY));
 
-					if (cornerDistance_sq <= pow(circ->GetRadius(),2)) {
+				// if the distance is less than the radius, collision!
+				if (distance <= circ->GetRadius()) {
 
-						//Collision detected
-						LOG("Colliding");
-					}
+					//Collision detected
+					LOG("Coll yay!!");
 				}
-				
-				
 			}
 
 		}
