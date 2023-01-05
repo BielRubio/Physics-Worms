@@ -21,6 +21,11 @@ bool ModulePhysics::Start()
 
 	colSolMethod = COL_SOLVER_METHOD::TP_NORM_VEC;
 
+	p2Point<float> terrainPos; 
+	terrainPos.x = 0;
+	terrainPos.y = App->renderer->camera.h - 200;
+	CreateTerrain(terrainPos);
+
 	return true;
 }
 
@@ -350,7 +355,54 @@ void ModulePhysics::Integrator() {
 			float mass = bList->data->GetMass(); 
 			Vector gravity = Vector(GRAVITY_X, GRAVITY_Y); 
 			bList->data->gravityForce = Vector(mass * gravity.x, mass * gravity.y);
-			
+
+			LOG("Gravity: %f", bList->data->gravityForce.y);
+
+			//Friction force
+			if (bList->data->GetVelocity().x < 0) {
+				bList->data->frictionForce.x = bList->data->gravityForce.y * terrain->frictionC;
+			}
+			else if (bList->data->GetVelocity().x > 0) {
+				bList->data->frictionForce.x = bList->data->gravityForce.y * -terrain->frictionC;
+			}
+			LOG("Friction: %f", bList->data->frictionForce.x);
+
+			//Drag force
+			if (bList->data->GetVelocity().x < 0) {
+				bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * terrain->dragC;
+			}
+			else {
+				bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * terrain->dragC;
+			}
+
+			if (bList->data->GetVelocity().y < 0) {
+				bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * terrain->dragC;
+			}
+			else {
+				bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * terrain->dragC;
+			}
+
+			//Addition of all the forces in order to calculate the acceleration
+
+			bList->data->totalForce.x = bList->data->gravityForce.x + bList->data->dragForce.x + bList->data->frictionForce.x + bList->data->jumpPlayerForce.x + bList->data->bounceForce.x;
+
+			bList->data->totalForce.y = bList->data->gravityForce.y + bList->data->dragForce.y + bList->data->frictionForce.y + bList->data->jumpPlayerForce.y + bList->data->bounceForce.y;
+
+			Vector acceleration = Vector(bList->data->totalForce.x / bList->data->mass, bList->data->totalForce.y / bList->data->mass);
+
+			p2Point<float> currentPos = bList->data->GetPosition();
+
+			Vector velocity = bList->data->GetVelocity(); 
+
+			//Switch with dt
+
+			bList->data->SetPosition(currentPos);
+
+			bList->data->SetVelocity(velocity); 
+
+			bList->data->jumpPlayerForce.x = 0; 
+			bList->data->jumpPlayerForce.y = 0; 
+			bList->data->frictionForce.x = 0; 
 		}
 	}
 }
@@ -415,9 +467,25 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 }
 
+void ModulePhysics::CreateTerrain(p2Point<float> pos) {
+	Body* terrain = new Body(); 
 
+	terrain->SetPosition(pos); 
+	terrain->SetVelocity(Vector(0, 0)); 
 
+	terrain->SetWidth(SCREEN_WIDTH); 
+	terrain->SetHeigth(SCREEN_HEIGHT - terrain->position.y); 
 
+	terrain->SetMass(100000); //Value?
+
+	terrain->btype = BodyType::STATIC; 
+	terrain->shape = Shape::RECTANGLE; 
+	terrain->type = PhysType::TERRAIN; 
+		
+	bodyList.add(terrain);
+
+	this->terrain = new Terrain(Vector(GRAVITY_X, GRAVITY_Y), 0, terrain); 
+}
 
 //Body class methods
 

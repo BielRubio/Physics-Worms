@@ -112,6 +112,25 @@ public:
 	Vector dragForce;
 	Vector liftForce;
 	Vector totalForce;
+	Vector jumpPlayerForce; 
+
+};
+
+class Terrain {
+public:
+	Terrain() {}
+	~Terrain() {}
+
+	Terrain(Vector gravity, float friction, Body* terrainBody) : gravity(gravity), frictionC(friction), terrainBody(terrainBody) {}
+
+public:
+	Body* terrainBody;
+
+	Vector gravity = Vector(GRAVITY_X, GRAVITY_Y);
+
+	float frictionC;
+
+	float dragC;
 
 };
 
@@ -136,6 +155,7 @@ public:
 	void Integrator();
 	bool CheckCollisions(Body* b1 = nullptr, Body* b2 = nullptr);
 	void CollisionSolver(Body* b1, Body* b2);
+	void CreateTerrain(p2Point<float> pos);
 
 private:
 
@@ -159,4 +179,6 @@ private:
 	COL_SOLVER_METHOD colSolMethod;
 
 	p2List<Body*> bodyList;
+
+	Terrain* terrain; 
 };
