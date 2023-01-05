@@ -79,7 +79,16 @@ update_status ModulePhysics::Update()
 	if (bodyList.getFirst() != nullptr) {
 		Integrator();
 	}
+	if (bodyList.getFirst() != nullptr && colSolMethod == ModulePhysics::COL_SOLVER_METHOD::ITERATE_CONTACT_POINT) {
+		for (p2List_item<Body*>* bodyNode = bodyList.getFirst(); bodyNode != nullptr; bodyNode = bodyNode->next) {
 
+			Body* body = bodyNode->data;
+
+			// Save last position
+			body->LastPosition = body->position;
+
+		}
+	}
 	CheckCollisions();
 
 	return UPDATE_CONTINUE;
@@ -327,7 +336,19 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 		break;
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
+			b1->position = b1->LastPosition;
+			//b2->position = b2->LastPosition;
 
+		}
+		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::STATIC) {
+			b1->position = b1->LastPosition;
+
+		}
+		if (b1->btype == BodyType::STATIC && b2->btype == BodyType::DYNAMIC) {
+			b2->position = b2->LastPosition;
+
+		}
 
 		break;
 	default:
