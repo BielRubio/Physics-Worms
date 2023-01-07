@@ -358,7 +358,7 @@ void ModulePhysics::Integrator() {
 			Vector gravity = Vector(GRAVITY_X, GRAVITY_Y); 
 			bList->data->gravityForce = Vector(mass * gravity.x, mass * gravity.y);
 
-			LOG("Gravity: %f", bList->data->gravityForce.y);
+			LOG("Gravity force: %f, %f", bList->data->gravityForce.x, bList->data->gravityForce.y);
 
 			//Friction force
 			if (bList->data->GetVelocity().x < 0) {
@@ -386,11 +386,13 @@ void ModulePhysics::Integrator() {
 
 			//Addition of all the forces in order to calculate the acceleration
 
-			bList->data->totalForce.x = bList->data->gravityForce.x + bList->data->dragForce.x + bList->data->frictionForce.x + bList->data->jumpPlayerForce.x + bList->data->bounceForce.x;
+			float totalX = bList->data->gravityForce.x + bList->data->dragForce.x + bList->data->frictionForce.x + bList->data->jumpPlayerForce.x + bList->data->bounceForce.x;
 
-			bList->data->totalForce.y = bList->data->gravityForce.y + bList->data->dragForce.y + bList->data->frictionForce.y + bList->data->jumpPlayerForce.y + bList->data->bounceForce.y;
+			float totalY = bList->data->gravityForce.y + bList->data->dragForce.y + bList->data->frictionForce.y + bList->data->jumpPlayerForce.y + bList->data->bounceForce.y;
 
-			Vector acceleration = Vector(bList->data->totalForce.x / bList->data->mass, bList->data->totalForce.y / bList->data->mass);
+			LOG("Total force: %f, %f", totalX, totalY);
+
+			Vector acceleration = Vector(totalX / bList->data->mass, totalY / bList->data->mass);
 
 			p2Point<float> currentPos = bList->data->GetPosition();
 
@@ -398,6 +400,8 @@ void ModulePhysics::Integrator() {
 			LOG("Pos before moving: %f, %f", currentPos.x, currentPos.y);
 			LOG("Velocity before moving: %f, %f", velocity.x, velocity.y);
 			LOG("Acceleration before moving: %f, %f", acceleration.x, acceleration.y);
+
+
 			switch (integMethod) {
 			case(INTEGRATION_METHOD::BW_EULER):
 				currentPos.x += velocity.x * App->frameDelay; 
@@ -405,6 +409,7 @@ void ModulePhysics::Integrator() {
 
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
+				LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
 			case(INTEGRATION_METHOD::FW_EULER):
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
@@ -420,7 +425,8 @@ void ModulePhysics::Integrator() {
 			default: 
 				integMethod = INTEGRATION_METHOD::BW_EULER; 
 			}
-			LOG("Pos before moving: %f, %f", currentPos.x, currentPos.y);
+			LOG("Pos after integrator: %f, %f", currentPos.x, currentPos.y);
+			LOG("Velocity after integrator: %f, %f", velocity.x, velocity.y);
 			bList->data->SetPosition(currentPos);
 
 			bList->data->SetVelocity(velocity); 
