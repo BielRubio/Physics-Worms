@@ -22,11 +22,9 @@ bool ModuleSceneIntro::Start()
 
 	//Initialize bodies
 
-	//Ground
-	//App->physics->CreateRectangle( 0, App->renderer->camera.h - 200, App->renderer->camera.w,200 , PhysType::TERRAIN);
-	
-	App->physics->CreateCircle(300, 300, 50, PhysType::ENTITY);
-	App->physics->CreateCircle(400, 300, 20, PhysType::PROJECTILE);
+	//Water
+	water = App->physics->CreateRectangle( 700, App->renderer->camera.h - 200, App->renderer->camera.w - 700,200 , PhysType::WATER);
+	water->SetBodyType(BodyType::STATIC);
 
 	return ret;
 }

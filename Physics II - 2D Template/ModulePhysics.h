@@ -11,7 +11,8 @@ enum class PhysType {
 	UNKNOWN = 0,
 	TERRAIN,
 	ENTITY,
-	PROJECTILE
+	PROJECTILE,
+	WATER
 };
 
 enum class Shape {
@@ -86,6 +87,7 @@ public:
 	void SetWidth(int width);
 	void SetHeigth(int heigth);
 	void SetMass(unsigned int mass); 
+	void SetBodyType(BodyType bt);
 
 	void OnCollision(Body* body2);
 
@@ -96,7 +98,7 @@ private:
 	int width, height;
 	int radius;
 	float mass = 1.0; 
-	unsigned int coefElastic; 
+	float coefElastic; 
 
 	
 	friend class ModulePhysics;
@@ -130,7 +132,7 @@ public:
 
 	float frictionC;
 
-	float dragC = 1;
+	float dragC = 0.001;
 
 };
 
