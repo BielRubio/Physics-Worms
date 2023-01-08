@@ -27,6 +27,10 @@ This project
 - F5: +1 FPS
 - F6: Change between 30 and 60 FPS
 - F: Move target
+- 1: Enable/Disable gravity force
+- 2: Enable/Disable aerodynamics forces
+- 3: Enable/Disable hydrodinamics forces
+- 4: Enable/Disable friction force
 
 ## NOTES
 - Debug draw hides everything because there are no textures
