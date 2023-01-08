@@ -398,18 +398,6 @@ void ModulePhysics::Integrator() {
 				float dragModulus = modVel * bList->data->hydroDrag; 
 				bList->data->dragForce.x = -unitaryDrag.x * dragModulus; 
 				bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
-				//Buoyancy
-				float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
-				float h = 2.0f * bList->data->radius; 
-				float surf = h * (waterTopLevel - bList->data->GetPosition().y);
-				if ((bList->data->GetPosition().y + bList->data->radius) < waterTopLevel) {
-					surf = h * h; 
-				}
-				surf *= 0.4;
-				double buoyancyModulus = water->waterDensity * 10 * surf;
-				/*bList->data->buoyancyForce.x = 0; 
-				bList->data->buoyancyForce.y = buoyancyModulus;*/
-				LOG("%f", buoyancyModulus);
 			}
 			else {
 				Vector vel = { bList->data->speed.x - terrain->wind.x, bList->data->speed.y - terrain->wind.y };
@@ -420,7 +408,7 @@ void ModulePhysics::Integrator() {
 					bList->data->dragForce.x = -unitaryDrag.x * dragModulus;
 					bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
 				}
-				LOG("DragForce: %f %f", bList->data->dragForce.x, bList->data->dragForce.y);
+				//LOG("DragForce: %f %f", bList->data->dragForce.x, bList->data->dragForce.y);
 			}
 			//Friction force
 			if (bList->data->applyFriction) {
@@ -433,21 +421,6 @@ void ModulePhysics::Integrator() {
 			}
 			
 			//LOG("Friction: %f", bList->data->frictionForce.x);
-
-			////Drag force
-			//if (bList->data->GetVelocity().x < 0) {
-			//	bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
-			//}
-			//else {
-			//	bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
-			//}
-
-			//if (bList->data->GetVelocity().y < 0) {
-			//	bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
-			//}
-			//else {
-			//	bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
-			//}
 
 			//Addition of all the forces in order to calculate the acceleration
 
@@ -473,7 +446,7 @@ void ModulePhysics::Integrator() {
 
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
-				LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
+				//LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
 			case(INTEGRATION_METHOD::FW_EULER):
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
@@ -499,6 +472,8 @@ void ModulePhysics::Integrator() {
 			bList->data->jumpPlayerForce.y = 0; 
 			bList->data->frictionForce.x = 0; 
 			bList->data->applyFriction = false;
+			bList->data->IsOnWater = false; 
+			bList->data->buoyancyForce = { 0,0 };
 		}
 	}
 }
@@ -518,6 +493,23 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 			App->player->turnTime = 1;
 		}
 		return;
+	}
+	if (b1->GetType() == PhysType::WATER) {
+		b2->IsOnWater = true; 
+		float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
+		
+		float h = 2.0f * b2->radius;
+		float surf = h * (waterTopLevel - b2->GetPosition().y);
+		if ((b2->GetPosition().y + b2->radius) < waterTopLevel) {
+			surf = h * h;
+		}
+		surf *= 0.004;
+		LOG("Surf %f", surf);
+		double buoyancyModulus = water->waterDensity * 10 * surf * 0.025;
+		b2->buoyancyForce.x = 0;
+		b2->buoyancyForce.y = -buoyancyModulus;
+		LOG("Buoyancy: %f", buoyancyModulus);
+		return; 
 	}
 
 	switch (colSolMethod)
@@ -622,7 +614,7 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	terrain->SetPosition(pos); 
 	terrain->SetVelocity(Vector(0, 0)); 
 
-	terrain->SetWidth(SCREEN_WIDTH - 324); 
+	terrain->SetWidth(300); 
 	terrain->SetHeigth(SCREEN_HEIGHT - terrain->position.y); 
 
 	terrain->SetMass(10000000000); //Value?
@@ -645,7 +637,7 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	water->SetPosition(waterPos); 
 	water->SetVelocity(Vector(0, 0));
 
-	water->SetWidth(SCREEN_WIDTH - 324);
+	water->SetWidth(SCREEN_WIDTH - 600);
 	water->SetHeigth(SCREEN_HEIGHT - water->position.y);
 
 	water->btype = BodyType::STATIC;
@@ -655,6 +647,30 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	bodyList.add(water); 
 
 	this->water = new Water(Vector(GRAVITY_X, GRAVITY_Y), 50.0f, water);
+
+	Body* terrain2 = new Body();
+
+	p2Point<float> terrPos;
+	terrPos.x = terrain->GetPosition().x + water->GetWidth() + terrain->GetWidth();
+	terrPos.y = App->renderer->camera.h - 200;
+
+	terrain2->SetPosition(terrPos);
+	terrain2->SetVelocity(Vector(0, 0));
+
+	terrain2->SetWidth(400);
+	terrain2->SetHeigth(SCREEN_HEIGHT - terrain2->position.y);
+
+	terrain2->SetMass(10000000000); //Value?
+
+	terrain2->btype = BodyType::STATIC;
+	terrain2->shape = Shape::RECTANGLE;
+	terrain2->type = PhysType::TERRAIN;
+
+	terrain2->coefElastic = 0.5;
+
+	bodyList.add(terrain2);
+
+	this->terrain = new Terrain(Vector(GRAVITY_X, GRAVITY_Y), 0, terrain2);
 
 }
 
