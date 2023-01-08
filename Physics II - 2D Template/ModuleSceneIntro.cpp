@@ -40,7 +40,7 @@ update_status ModuleSceneIntro::Update()
 		App->player->Disable();
 		App->physics->Disable();
 	}
-	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_STATE::KEY_DOWN) {
+	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_STATE::KEY_UP) {
 		App->player->Enable();
 		App->physics->Enable();
 	}

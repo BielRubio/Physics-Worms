@@ -42,10 +42,6 @@ bool ModulePlayer::Start()
 // Update: draw background
 update_status ModulePlayer::Update()
 {
-
-	/*LOG("PLAYER 1 HP: %i", health1);
-	LOG("PLAYER 2 HP: %i", health2);*/
-
 	int speed = 5;
 
 	//Movement
