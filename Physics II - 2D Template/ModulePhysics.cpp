@@ -399,7 +399,7 @@ void ModulePhysics::Integrator() {
 				bList->data->dragForce.x = -unitaryDrag.x * dragModulus; 
 				bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
 				//Buoyancy
-				/*float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
+				float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
 				float h = 2.0f * bList->data->radius; 
 				float surf = h * (waterTopLevel - bList->data->GetPosition().y);
 				if ((bList->data->GetPosition().y + bList->data->radius) < waterTopLevel) {
@@ -407,9 +407,9 @@ void ModulePhysics::Integrator() {
 				}
 				surf *= 0.4;
 				double buoyancyModulus = water->waterDensity * 10 * surf;
-				bList->data->buoyancyForce.x = 0; 
-				bList->data->buoyancyForce.y = buoyancyModulus;
-				LOG("%f", buoyancyModulus);*/
+				/*bList->data->buoyancyForce.x = 0; 
+				bList->data->buoyancyForce.y = buoyancyModulus;*/
+				LOG("%f", buoyancyModulus);
 			}
 			else {
 				Vector vel = { bList->data->speed.x - terrain->wind.x, bList->data->speed.y - terrain->wind.y };
