@@ -26,6 +26,7 @@ This project is an assigment for the 2022-2023 Physics II class 2nd grade in CIT
 - F4: -1 FPS
 - F5: +1 FPS
 - F6: Change between 30 and 60 FPS
+- F10: Show game state(Active forces and position)
 - F: Move target
 - 1: Enable/Disable gravity force
 - 2: Enable/Disable aerodynamics forces
