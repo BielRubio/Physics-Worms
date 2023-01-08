@@ -356,12 +356,12 @@ void ModulePhysics::DebugKeys() {
 	//Delta time
 	if (App->input->GetKey(SDL_SCANCODE_F4) == KEY_STATE::KEY_REPEAT) {
 		if (App->FPS != 1) {
-			App->FPS--;
+			App->FPS++;
 			App->frameDelay = 1 / App->FPS;
 		}
 	}
 	if (App->input->GetKey(SDL_SCANCODE_F5) == KEY_STATE::KEY_REPEAT) {
-		App->FPS++;
+		App->FPS--;
 		App->frameDelay = 1 / App->FPS;
 	}
 	if (App->input->GetKey(SDL_SCANCODE_F6) == KEY_STATE::KEY_DOWN) {
