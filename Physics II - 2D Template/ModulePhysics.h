@@ -121,6 +121,10 @@ public:
 	Vector totalForce = { 0,0 };
 	Vector jumpPlayerForce = { 0,0 };
 
+	//Bullet damage 
+	int bulletDamage = 7;
+	Body* whoShotMe;
+
 };
 
 class Terrain {

@@ -17,17 +17,22 @@ public:
 
 	void FireBullet(int f);
 	void GuideTeleBullet();
+	void HitPlayer(Body* player, Body* bullet);
 
 public:
 	Body* pbody; 
+	Body* pbody2;
+
+	int health1;
+	int health2;
+
+	bool player1Turn;
 
 	bool alive = true; 
 
 	bool destroyBullet; 
 
 	int bulletCharge;
-
-	bool teleBullets;
 
 	Body* lastTeleBullet;
 };

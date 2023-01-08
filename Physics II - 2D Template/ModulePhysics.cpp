@@ -85,8 +85,6 @@ update_status ModulePhysics::Update()
 	default:
 		break;
 	}
-	
-	(App->player->teleBullets) ? sprintf_s(teleChar, 256, "On") : sprintf_s(teleChar, 256, "Off");
 
 	static char title[256];
 	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %f (F4 add, F5 substract, F6 30/60)", integChar, debugChar,colChar, App->FPS);
@@ -258,16 +256,8 @@ bool ModulePhysics::CheckCollisions(Body* b1, Body* b2) {
 					if (returnBool)
 						return true;
 					else {
-						if (body1->GetType() == PhysType::TARGET || body2->GetType() == PhysType::TARGET) {
-							App->scene_intro->ChangeTargetPos();
-						}
-						else {
-							CollisionSolver(body1, body2);
-						}
-						
+						CollisionSolver(body1, body2);
 					}
-						
-					
 				}
 			}
 
@@ -480,6 +470,19 @@ void ModulePhysics::Integrator() {
 }
 
 void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
+
+	if (b1->GetType() == PhysType::TARGET && (b2->GetType() == PhysType::PROJECTILE || b2->GetType() == PhysType::TELE_PROJECTILE)) {
+		b2->bulletDamage *= 2;
+		App->scene_intro->ChangeTargetPos();
+		return;
+	}
+	if (b1->GetType() == PhysType::ENTITY && (b2->GetType() == PhysType::PROJECTILE || b2->GetType() == PhysType::TELE_PROJECTILE)) {
+		if (b1 != b2->whoShotMe) {
+			LOG("Wyh");
+			App->player->HitPlayer(b1, b2);
+		}
+		return;
+	}
 
 	switch (colSolMethod)
 	{
