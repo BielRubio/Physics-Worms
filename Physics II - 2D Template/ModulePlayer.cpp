@@ -190,7 +190,7 @@ update_status ModulePlayer::Update()
 	}
 
 	// Fonts
-	char charAux[10];
+	char charAux[12];
 	sprintf_s(charAux, "%d", health1);
 	App->fonts->BlitText(144, 0, WhiteFont, charAux);
 	App->fonts->BlitText(0, 0, WhiteFont, "player 1 hp:");
@@ -205,7 +205,43 @@ update_status ModulePlayer::Update()
 	App->fonts->BlitText(990, 0, WhiteFont, charAux);
 	sprintf_s(charAux, "%d", turnTime);
 	App->fonts->BlitText(506, 0, WhiteFont, charAux);
+	if (App->physics->showState) {
+		App->fonts->BlitText(0, 50, WhiteFont, "gravity: ");
+		if (App->physics->allowGravity == true) {
+			App->fonts->BlitText(95, 50, WhiteFont, "on");
+		}
+		else {
+			App->fonts->BlitText(95, 50, WhiteFont, "off");
+		}
+		App->fonts->BlitText(0, 75, WhiteFont, "aerodinamics: ");
+		if (App->physics->allowAero == true) {
+			App->fonts->BlitText(155, 75, WhiteFont, "on");
+		}
+		else {
+			App->fonts->BlitText(155, 75, WhiteFont, "off");
+		}
+		App->fonts->BlitText(0, 100, WhiteFont, "friction: ");
+		if (App->physics->allowFriction == true) {
+			App->fonts->BlitText(105, 100, WhiteFont, "on");
+		}
+		else {
+			App->fonts->BlitText(105, 100, WhiteFont, "off");
+		}
+		App->fonts->BlitText(0, 125, WhiteFont, "hydrodinamics: ");
+		if (App->physics->allowHydro == true) {
+			App->fonts->BlitText(165, 125, WhiteFont, "on");
+		}
+		else {
+			App->fonts->BlitText(165, 125, WhiteFont, "off");
+		}
+		sprintf_s(charAux, "x:%.0f y:%.0f", pbody->GetPosition().x, pbody->GetPosition().y);
+		App->fonts->BlitText(310, 0, WhiteFont, charAux);
+		App->fonts->BlitText(200,0,WhiteFont,"position: ");
+		sprintf_s(charAux, "x:%.0f y:%.0f", pbody2->GetPosition().x, pbody2->GetPosition().y);
+		App->fonts->BlitText(660, 0, WhiteFont, charAux);
+		App->fonts->BlitText(550, 0, WhiteFont, "position: ");
 
+	}
 
 	return UPDATE_CONTINUE;
 }

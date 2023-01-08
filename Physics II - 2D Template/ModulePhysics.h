@@ -194,13 +194,17 @@ public:
 	void CollisionSolver(Body* b1, Body* b2);
 	void CreateTerrain(p2Point<float> pos);
 
+public:
+	bool showState;
+	bool allowGravity;
+	bool allowAero;
+	bool allowFriction;
+	bool allowHydro;
 private:
 
 	bool debug;
-	bool allowGravity; 
-	bool allowAero;
-	bool allowFriction; 
-	bool allowHydro;
+	
+	
 	bool fps30 = true;
 
 	enum class INTEGRATION_METHOD {

@@ -35,7 +35,7 @@ bool ModulePhysics::Start()
 	allowAero = true; 
 	allowHydro = true; 
 	allowFriction = true; 
-
+	showState = false; 
 
 
 
@@ -388,6 +388,10 @@ void ModulePhysics::DebugKeys() {
 			fps30 = true;
 		}
 	}
+	//Show state
+	if(App->input->GetKey(SDL_SCANCODE_F10) == KEY_STATE::KEY_DOWN)
+		showState = (!showState) ? true : false;
+
 	//Forces desactivation
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_STATE::KEY_DOWN) 
 		allowGravity = (!allowGravity) ? true : false;
