@@ -6,6 +6,12 @@
 #define GRAVITY_X 0.0f
 #define GRAVITY_Y 10.0f
 
+#define PIXELS_PER_METER (20.0f) // if touched change METER_PER_PIXEL too
+#define METER_PER_PIXEL (1.0f / PIXELS_PER_METER) // this is 1 / PIXELS_PER_METER !
+
+#define METERS_TO_PIXELS(m) ((int) std::floor(PIXELS_PER_METER * m))
+#define PIXEL_TO_METERS(p)  ((float) METER_PER_PIXEL * p)
+
 
 enum class PhysType {
 
@@ -104,7 +110,7 @@ private:
 	unsigned int coefElastic; 
 	float dragC = 0.005; 
 	float hydroDrag = 1.0f;
-	bool IsOnWater = true; 
+	bool IsOnWater = false; 
 	bool applyFriction = true; 
 	float coefRest = 1;
 
