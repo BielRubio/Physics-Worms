@@ -1,6 +1,7 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModulePlayer.h"
+#include "ModuleFonts.h"
 
 ModulePlayer::ModulePlayer(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -19,7 +20,6 @@ bool ModulePlayer::Start()
 
 	//Initialize variables
 	bulletCharge = 10;
-	teleBullets = false;
 	char lookupTable[] = { "abcdefghijklmnopqrstuvwxyz0123456789 " };
 	WhiteFont = App->fonts->Load("../Assets/FontWhiteDef.png", lookupTable, 1);
 
@@ -84,8 +84,7 @@ update_status ModulePlayer::Update()
 			pbody2->jumpPlayerForce = { 0,-1000 };
 		}
 	}
-		pbody->jumpPlayerForce = { 0,-1000 };
-	}
+
 	App->fonts->BlitText(0, 0, WhiteFont, "this is a test");
 	//Fire Projectile
 	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_REPEAT) {

@@ -23,6 +23,7 @@ Application::Application()
 	AddModule(textures);
 	AddModule(input);
 	AddModule(audio);
+	AddModule(fonts);
 	
 	// Scenes
 	AddModule(scene_intro);
