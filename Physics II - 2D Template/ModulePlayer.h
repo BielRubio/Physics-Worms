@@ -28,14 +28,10 @@ public:
 
 	bool player1Turn;
 	int turnTime;
-	int Time = 0, timer = 0;
+	int Time, timer;
 
-	bool alive = true; 
-
-	bool destroyBullet; 
-
-	bool TurnFinished = false;
-	bool CanPlayerMove = true;
+	bool TurnFinished;
+	bool CanPlayerMove;
 
 	int bulletCharge;
 

@@ -197,7 +197,7 @@ public:
 private:
 
 	bool debug;
-	bool fps30 = true;
+	bool fps30;
 
 	enum class INTEGRATION_METHOD {
 		BW_EULER,

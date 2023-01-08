@@ -31,6 +31,8 @@ bool ModulePhysics::Start()
 	water->waterDensity = 50.0f; 
 	water->waterDrag = { -1.0f, 0.0f };
 
+	fps30 = true;
+
 
 
 	return true;
@@ -197,6 +199,12 @@ bool ModulePhysics::CleanUp()
 	LOG("Destroying physics items");
 
 	bodyList.clear();
+
+	delete terrain;
+	terrain = nullptr;
+
+	delete water;
+	water = nullptr;
 
 	return true;
 }
