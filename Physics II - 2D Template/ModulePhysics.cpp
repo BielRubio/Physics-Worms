@@ -38,6 +38,7 @@ bool ModulePhysics::Start()
 
 
 
+
 	return true;
 }
 
@@ -202,6 +203,12 @@ bool ModulePhysics::CleanUp()
 	LOG("Destroying physics items");
 
 	bodyList.clear();
+
+	delete terrain;
+	terrain = nullptr;
+
+	delete water;
+	water = nullptr;
 
 	return true;
 }

@@ -24,10 +24,17 @@ bool ModulePlayer::Start()
 	WhiteFont = App->fonts->Load("../Assets/FontWhiteDef.png", lookupTable, 1);
 
 	player1Turn = true;
+
 	turnTime = 30;
+
+	Time = 0;
+	timer = 0;
 
 	health1 = 100;
 	health2 = 100;
+
+	TurnFinished = false;
+	CanPlayerMove = true;
 
 	return true;
 }
@@ -206,7 +213,19 @@ update_status ModulePlayer::Update()
 // Unload assets
 bool ModulePlayer::CleanUp()
 {
-	LOG("Unloading player");
+	LOG("Unloading players");
+
+	delete pbody;
+	pbody = nullptr;
+
+	delete pbody2;
+	pbody2 = nullptr;
+
+	if (lastTeleBullet != nullptr) {
+		delete lastTeleBullet;
+		lastTeleBullet = nullptr;
+	}
+	
 
 	return true;
 }

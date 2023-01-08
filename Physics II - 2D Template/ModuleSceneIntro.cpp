@@ -36,6 +36,15 @@ update_status ModuleSceneIntro::Update()
 		ChangeTargetPos();
 	}
 
+	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_STATE::KEY_DOWN) {
+		App->player->Disable();
+		App->physics->Disable();
+	}
+	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_STATE::KEY_DOWN) {
+		App->player->Enable();
+		App->physics->Enable();
+	}
+
 	return UPDATE_CONTINUE;
 }
 
@@ -44,12 +53,15 @@ bool ModuleSceneIntro::CleanUp()
 {
 	LOG("Unloading Intro scene");
 
+	delete target;
+	target = nullptr;
+
 	return true;
 }
 
 void ModuleSceneIntro::ChangeTargetPos() {
 
-	//srand(time(NULL));
+	//srand((unsigned)time(NULL));
 
 	int rX = rand() % SCREEN_WIDTH;
 	int rY = rand() % (SCREEN_HEIGHT - 600) + 200;
@@ -61,5 +73,4 @@ void ModuleSceneIntro::ChangeTargetPos() {
 	newPos.y = rY;
 
 	target->SetPosition(newPos);
-	targetScore++;
 }

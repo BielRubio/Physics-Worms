@@ -20,9 +20,5 @@ public:
 
 public:
 
-	Body* water;
-
 	Body* target;
-
-	int targetScore;
 };
