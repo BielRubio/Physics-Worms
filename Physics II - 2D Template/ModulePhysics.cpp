@@ -514,6 +514,8 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 		if (b1 != b2->whoShotMe) {
 			LOG("Wyh");
 			App->player->HitPlayer(b1, b2);
+			App->player->TurnFinished = true;
+			App->player->turnTime = 1;
 		}
 		return;
 	}
