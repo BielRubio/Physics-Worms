@@ -75,7 +75,7 @@ public:
 		}
 		else {
 			r = NULL;
-			LOG("This object shape doesn't have radius");
+			//LOG("This object shape doesn't have radius");
 		}
 
 		return r;
@@ -104,7 +104,7 @@ private:
 	unsigned int coefElastic; 
 	float dragC = 0.005; 
 	float hydroDrag = 1.0f;
-	bool IsOnWater = false; 
+	bool IsOnWater = true; 
 	bool applyFriction = true; 
 	float coefRest = 1;
 
