@@ -15,7 +15,7 @@ bool ModulePlayer::Start()
 	LOG("Loading player");
 
 	pbody = App->physics->CreateRectangle(0,0,30,60,PhysType::ENTITY);
-
+	
 	return true;
 }
 
