@@ -42,7 +42,7 @@ update_status ModulePlayer::Update()
 	int speed = 5;
 
 	//Movement
-	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_STATE::KEY_REPEAT) {
+	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_STATE::KEY_REPEAT && TurnFinished == false && CanPlayerMove == true) {
 
 		if (player1Turn) {
 			p2Point<float> newPos;
@@ -60,7 +60,7 @@ update_status ModulePlayer::Update()
 		}
 		
 	}
-	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_STATE::KEY_REPEAT) {
+	if (App->input->GetKey(SDL_SCANCODE_D) == KEY_STATE::KEY_REPEAT && TurnFinished == false && CanPlayerMove == true) {
 		if (player1Turn) {
 			p2Point<float> newPos;
 			newPos.x = pbody->GetPosition().x + speed;
@@ -77,7 +77,7 @@ update_status ModulePlayer::Update()
 		}
 		
 	}
-	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_STATE::KEY_DOWN) {
+	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_STATE::KEY_DOWN && TurnFinished == false && CanPlayerMove == true) {
 		if (player1Turn) {
 			pbody->jumpPlayerForce = { 0,-1000 };
 		}
@@ -87,7 +87,8 @@ update_status ModulePlayer::Update()
 	}
 
 	//Fire Projectile
-	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_REPEAT) {
+	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_REPEAT && TurnFinished == false) {
+		CanPlayerMove == false;
 		if (player1Turn) {
 			if (bulletCharge < 100)
 				bulletCharge++;
@@ -112,16 +113,19 @@ update_status ModulePlayer::Update()
 
 			App->renderer->DrawLine(pbody2->GetPosition().x, pbody2->GetPosition().y, pbody2->GetPosition().x + vecNormX * bulletCharge, pbody2->GetPosition().y + vecNormY * bulletCharge, 200, 200, 0, 255);
 		}
-		
+
 	}
-	else if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_UP) {
+	else if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_UP && TurnFinished == false) {
 		FireBullet(bulletCharge);
 		bulletCharge = 10;
 		turnTime = 5;
+		TurnFinished = true;
+		CanPlayerMove == false;
 
 	}
 	//Fire tele-projectile
-	if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_STATE::KEY_DOWN) {
+	if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_STATE::KEY_DOWN && TurnFinished == false) {
+		CanPlayerMove == false;
 		if (player1Turn) {
 			lastTeleBullet = App->physics->CreateCircle(pbody->GetPosition().x, pbody->GetPosition().y, 10, PhysType::TELE_PROJECTILE);
 
@@ -150,25 +154,30 @@ update_status ModulePlayer::Update()
 
 			lastTeleBullet->jumpPlayerForce = { vecNormX * 100, vecNormY * 100 };
 		}
-		
+
 	}
-	else if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_STATE::KEY_REPEAT) {
+	else if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_STATE::KEY_REPEAT && TurnFinished == false) {
 		GuideTeleBullet();
+		CanPlayerMove == false;
 	}
-	else if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_STATE::KEY_DOWN) {
+	else if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_STATE::KEY_DOWN && TurnFinished == false) {
 		turnTime = 5;
 		lastTeleBullet = nullptr;
+		TurnFinished = true;
+		CanPlayerMove == false;
 	}
 	
 	//End turn
 	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_STATE::KEY_DOWN || turnTime <= 0) {
 		player1Turn = (!player1Turn) ? true : false;
 		turnTime = 30;
+		TurnFinished = false;
+		CanPlayerMove = true;
 	}
 
 	//Manage turnTime
 	App->timer++;
-	if (App->timer >= ((App->FPS*2) + 1)) App->timer = 0;
+	if (App->timer >= (App->FPS*2)) App->timer = 0;
 	if (App->timer == App->FPS) turnTime--;
 
 	// Fonts
@@ -177,11 +186,16 @@ update_status ModulePlayer::Update()
 	App->fonts->BlitText(144, 0, WhiteFont, charAux);
 	App->fonts->BlitText(0, 0, WhiteFont, "player 1 hp:");
 	App->fonts->BlitText(846, 0, WhiteFont, "player 2 hp:");
-	App->fonts->BlitText(390, 0, WhiteFont, "turn time left:");
+	if (player1Turn == true) {
+		App->fonts->BlitText(470, 0, WhiteFont, "p1:");
+	}
+	else {
+		App->fonts->BlitText(470, 0, WhiteFont, "p2:");
+	}
 	sprintf_s(charAux, "%d", health2);
 	App->fonts->BlitText(990, 0, WhiteFont, charAux);
 	sprintf_s(charAux, "%d", turnTime);
-	App->fonts->BlitText(570, 0, WhiteFont, charAux);
+	App->fonts->BlitText(506, 0, WhiteFont, charAux);
 
 
 	return UPDATE_CONTINUE;

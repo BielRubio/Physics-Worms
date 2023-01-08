@@ -33,6 +33,9 @@ public:
 
 	bool destroyBullet; 
 
+	bool TurnFinished = false;
+	bool CanPlayerMove = true;
+
 	int bulletCharge;
 
 	Body* lastTeleBullet;
