@@ -630,7 +630,7 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	terrain->SetPosition(pos); 
 	terrain->SetVelocity(Vector(0, 0)); 
 
-	terrain->SetWidth(SCREEN_WIDTH - 324); 
+	terrain->SetWidth(300); 
 	terrain->SetHeigth(SCREEN_HEIGHT - terrain->position.y); 
 
 	terrain->SetMass(10000000000); //Value?
@@ -653,7 +653,7 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	water->SetPosition(waterPos); 
 	water->SetVelocity(Vector(0, 0));
 
-	water->SetWidth(SCREEN_WIDTH - 324);
+	water->SetWidth(SCREEN_WIDTH - 600);
 	water->SetHeigth(SCREEN_HEIGHT - water->position.y);
 
 	water->btype = BodyType::STATIC;
@@ -663,6 +663,30 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	bodyList.add(water); 
 
 	this->water = new Water(Vector(GRAVITY_X, GRAVITY_Y), 50.0f, water);
+
+	Body* terrain2 = new Body();
+
+	p2Point<float> terrPos;
+	terrPos.x = terrain->GetPosition().x + water->GetWidth() + terrain->GetWidth();
+	terrPos.y = App->renderer->camera.h - 200;
+
+	terrain2->SetPosition(terrPos);
+	terrain2->SetVelocity(Vector(0, 0));
+
+	terrain2->SetWidth(400);
+	terrain2->SetHeigth(SCREEN_HEIGHT - terrain2->position.y);
+
+	terrain2->SetMass(10000000000); //Value?
+
+	terrain2->btype = BodyType::STATIC;
+	terrain2->shape = Shape::RECTANGLE;
+	terrain2->type = PhysType::TERRAIN;
+
+	terrain2->coefElastic = 0.5;
+
+	bodyList.add(terrain2);
+
+	this->terrain = new Terrain(Vector(GRAVITY_X, GRAVITY_Y), 0, terrain2);
 
 }
 
