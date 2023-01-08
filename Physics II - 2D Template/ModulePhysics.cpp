@@ -25,6 +25,10 @@ bool ModulePhysics::Start()
 	terrainPos.x = 0;
 	terrainPos.y = App->renderer->camera.h - 200;
 	CreateTerrain(terrainPos);
+	terrain->atmosDensity = 1.0f; 
+	terrain->wind = {10.0f, 5.0f};
+
+	water->waterDrag = { -1.0f, 0.0f };
 
 
 
@@ -367,6 +371,9 @@ void ModulePhysics::Integrator() {
 
 			//LOG("Gravity force: %f, %f", bList->data->gravityForce.x, bList->data->gravityForce.y);
 
+			if (bList->data->IsOnWater) {
+
+			}
 			//Friction force
 			if (bList->data->GetVelocity().x < 0) {
 				bList->data->frictionForce.x = bList->data->gravityForce.y * terrain->frictionC;
@@ -562,6 +569,26 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	bodyList.add(terrain);
 
 	this->terrain = new Terrain(Vector(GRAVITY_X, GRAVITY_Y), 0, terrain);
+
+	Body* water = new Body(); 
+	p2Point<float> waterPos; 
+	waterPos.x = terrain->GetPosition().x + terrain->GetWidth();
+	waterPos.y = App->renderer->camera.h - 200;
+
+	water->SetPosition(waterPos); 
+	water->SetVelocity(Vector(0, 0));
+
+	water->SetWidth(SCREEN_WIDTH - 324);
+	water->SetHeigth(SCREEN_HEIGHT - water->position.y);
+
+	water->btype = BodyType::STATIC;
+	water->shape = Shape::RECTANGLE;
+	water->type = PhysType::WATER;
+
+	bodyList.add(water); 
+
+	this->water = new Water(Vector(GRAVITY_X, GRAVITY_Y), 50.0f, water);
+
 }
 
 //Body class methods

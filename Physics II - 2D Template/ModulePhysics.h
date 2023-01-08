@@ -100,6 +100,7 @@ private:
 	float mass = 1.0; 
 	unsigned int coefElastic; 
 	float dragC = 0.1; 
+	bool IsOnWater = false; 
 
 	
 	friend class ModulePhysics;
@@ -131,9 +132,27 @@ public:
 
 	Vector gravity = Vector(GRAVITY_X, GRAVITY_Y);
 
+	float atmosDensity; 
+
+	Vector wind; 
+
 	float frictionC;
 
 
+};
+class Water {
+public: 
+	Water() {}
+	~Water() {}
+
+	Water(Vector gravity, float waterDensity, Body* waterBody) : gravity(gravity), waterDensity(waterDensity), waterBody(waterBody) {}
+public:
+	Body* waterBody; 
+	Vector gravity = Vector(GRAVITY_X, GRAVITY_Y);
+
+	float waterDensity; 
+
+	Vector waterDrag = { 0,0 }; 
 };
 
 class ModulePhysics : public Module
@@ -183,4 +202,6 @@ private:
 	p2List<Body*> bodyList;
 
 	Terrain* terrain; 
+
+	Water* water; 
 };
