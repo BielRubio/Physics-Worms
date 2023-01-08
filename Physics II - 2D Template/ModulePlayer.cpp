@@ -44,6 +44,9 @@ update_status ModulePlayer::Update()
 
 		pbody->SetPosition(newPos);
 	}
+	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_STATE::KEY_DOWN) {
+		pbody->jumpPlayerForce = { 0,-1000 };
+	}
 	//Fire Projectile
 	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_REPEAT && !teleBullets) {
 		if (bulletCharge < 100)
@@ -124,7 +127,7 @@ void ModulePlayer::GuideTeleBullet() {
 	float vecNormX = vecX / sqrt(pow(vecX, 2) + pow(vecY, 2));
 	float vecNormY = vecY / sqrt(pow(vecX, 2) + pow(vecY, 2));
 
-	lastTeleBullet->jumpPlayerForce = { vecNormX * 200, vecNormY * 200 };
+	lastTeleBullet->jumpPlayerForce = { vecNormX * 100, vecNormY * 100 };
 }
 
 
