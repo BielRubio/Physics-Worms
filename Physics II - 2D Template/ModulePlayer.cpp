@@ -166,17 +166,22 @@ update_status ModulePlayer::Update()
 		turnTime = 30;
 	}
 
+	//Manage turnTime
+	App->timer++;
+	if (App->timer >= ((App->FPS*2) + 1)) App->timer = 0;
+	if (App->timer == App->FPS) turnTime--;
+
 	// Fonts
 	char charAux[10];
 	sprintf_s(charAux, "%d", health1);
 	App->fonts->BlitText(144, 0, WhiteFont, charAux);
 	App->fonts->BlitText(0, 0, WhiteFont, "player 1 hp:");
 	App->fonts->BlitText(846, 0, WhiteFont, "player 2 hp:");
+	App->fonts->BlitText(390, 0, WhiteFont, "turn time left:");
 	sprintf_s(charAux, "%d", health2);
 	App->fonts->BlitText(990, 0, WhiteFont, charAux);
-
-
-	//Manage turnTime
+	sprintf_s(charAux, "%d", turnTime);
+	App->fonts->BlitText(570, 0, WhiteFont, charAux);
 
 
 	return UPDATE_CONTINUE;
