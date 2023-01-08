@@ -19,6 +19,9 @@ bool ModulePlayer::Start()
 
 	//Initialize variables
 	bulletCharge = 10;
+	teleBullets = false;
+	char lookupTable[] = { "abcdefghijklmnopqrstuvwxyz0123456789 " };
+	WhiteFont = App->fonts->Load("../Assets/FontWhiteDef.png", lookupTable, 1);
 
 	player1Turn = true;
 
@@ -81,6 +84,9 @@ update_status ModulePlayer::Update()
 			pbody2->jumpPlayerForce = { 0,-1000 };
 		}
 	}
+		pbody->jumpPlayerForce = { 0,-1000 };
+	}
+	App->fonts->BlitText(0, 0, WhiteFont, "this is a test");
 	//Fire Projectile
 	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_REPEAT) {
 		if (player1Turn) {

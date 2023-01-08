@@ -35,4 +35,8 @@ public:
 	int bulletCharge;
 
 	Body* lastTeleBullet;
+
+private:
+	int WhiteFont;
+
 };
