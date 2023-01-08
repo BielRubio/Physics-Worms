@@ -15,8 +15,8 @@ bool ModulePlayer::Start()
 {
 	LOG("Loading player");
 
-	pbody = App->physics->CreateRectangle(App->renderer->camera.w/2 - 15,500,30,60,PhysType::ENTITY);
-	pbody2 = App->physics->CreateRectangle(App->renderer->camera.w / 2 - 100, 500, 30, 60, PhysType::ENTITY);
+	pbody = App->physics->CreateRectangle(70,500,30,60,PhysType::ENTITY);
+	pbody2 = App->physics->CreateRectangle(App->renderer->camera.w - 100, 500, 30, 60, PhysType::ENTITY);
 
 	//Initialize variables
 	bulletCharge = 10;
@@ -176,9 +176,11 @@ update_status ModulePlayer::Update()
 	}
 
 	//Manage turnTime
-	App->timer++;
-	if (App->timer >= (App->FPS*2)) App->timer = 0;
-	if (App->timer == App->FPS) turnTime--;
+	timer = SDL_GetTicks();
+	if (timer > Time * 1000) {
+		Time++;
+		turnTime--;
+	}
 
 	// Fonts
 	char charAux[10];
