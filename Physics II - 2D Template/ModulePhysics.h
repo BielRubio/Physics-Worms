@@ -197,10 +197,10 @@ public:
 private:
 
 	bool debug;
-	bool allowGravity = true; 
-	bool allowAero = true;
-	bool allowFriction = true; 
-	bool allowHydro = true;
+	bool allowGravity; 
+	bool allowAero;
+	bool allowFriction; 
+	bool allowHydro;
 	bool fps30 = true;
 
 	enum class INTEGRATION_METHOD {

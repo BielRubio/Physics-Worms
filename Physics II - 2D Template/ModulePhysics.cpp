@@ -31,6 +31,11 @@ bool ModulePhysics::Start()
 	water->waterDensity = 50.0f; 
 	water->waterDrag = { -1.0f, 0.0f };
 
+	allowGravity = true; 
+	allowAero = true; 
+	allowHydro = true; 
+	allowFriction = true; 
+
 
 
 	return true;
