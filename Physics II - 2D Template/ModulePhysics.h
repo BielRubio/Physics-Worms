@@ -6,6 +6,7 @@
 #define GRAVITY_X 0.0f
 #define GRAVITY_Y 10.0f
 
+
 enum class PhysType {
 
 	UNKNOWN = 0,
@@ -98,11 +99,13 @@ private:
 	p2Point<float> position, LastPosition;
 	Vector speed;
 	int width, height;
-	int radius;
+	float radius = 1;
 	float mass = 1.0; 
 	unsigned int coefElastic; 
 	float dragC = 0.005; 
+	float hydroDrag = 1.0f;
 	bool IsOnWater = false; 
+	bool applyFriction = true; 
 	float coefRest = 1;
 
 	
@@ -114,7 +117,7 @@ public:
 
 	//Forces
 	Vector gravityForce = {0,0};
-	Vector bounceForce = { 0,0 };
+	Vector buoyancyForce = { 0,0 };
 	Vector frictionForce = { 0,0 };
 	Vector dragForce = { 0,0 };
 	Vector liftForce = { 0,0 };
@@ -208,3 +211,5 @@ private:
 
 	Water* water; 
 };
+
+float modulus(float vx, float vy);

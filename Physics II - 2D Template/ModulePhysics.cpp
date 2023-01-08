@@ -28,6 +28,7 @@ bool ModulePhysics::Start()
 	terrain->atmosDensity = 1.0f; 
 	terrain->wind = {10.0f, 5.0f};
 
+	water->waterDensity = 50.0f; 
 	water->waterDrag = { -1.0f, 0.0f };
 
 
@@ -400,37 +401,69 @@ void ModulePhysics::Integrator() {
 			//LOG("Gravity force: %f, %f", bList->data->gravityForce.x, bList->data->gravityForce.y);
 
 			if (bList->data->IsOnWater) {
-
+				//Drag force on water
+				Vector vel = {bList->data->speed.x - water->waterDrag.x, bList->data->speed.y - water->waterDrag.y };
+				float modVel = modulus(vel.x, vel.y); 
+				Vector unitaryDrag = { vel.x / modVel, vel.y / modVel };
+				float dragModulus = modVel * bList->data->hydroDrag; 
+				bList->data->dragForce.x = -unitaryDrag.x * dragModulus; 
+				bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
+				//Buoyancy
+				/*float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
+				float h = 2.0f * bList->data->radius; 
+				float surf = h * (waterTopLevel - bList->data->GetPosition().y);
+				if ((bList->data->GetPosition().y + bList->data->radius) < waterTopLevel) {
+					surf = h * h; 
+				}
+				surf *= 0.4;
+				double buoyancyModulus = water->waterDensity * 10 * surf;
+				bList->data->buoyancyForce.x = 0; 
+				bList->data->buoyancyForce.y = buoyancyModulus;
+				LOG("%f", buoyancyModulus);*/
+			}
+			else {
+				Vector vel = { bList->data->speed.x - terrain->wind.x, bList->data->speed.y - terrain->wind.y };
+				float modVel = modulus(vel.x, vel.y);
+				Vector unitaryDrag = { vel.x / modVel, vel.y / modVel };
+				float dragModulus = 0.5f * terrain->atmosDensity * modVel * modVel * bList->data->dragC;
+				if (bList->data->GetVelocity().x != 0 ) {
+					bList->data->dragForce.x = -unitaryDrag.x * dragModulus;
+					bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
+				}
+				LOG("DragForce: %f %f", bList->data->dragForce.x, bList->data->dragForce.y);
 			}
 			//Friction force
-			if (bList->data->GetVelocity().x < 0) {
-				bList->data->frictionForce.x = bList->data->gravityForce.y * terrain->frictionC;
+			if (bList->data->applyFriction) {
+				if (bList->data->GetVelocity().x < 0) {
+					bList->data->frictionForce.x = bList->data->gravityForce.y * terrain->frictionC;
+				}
+				else if (bList->data->GetVelocity().x > 0) {
+					bList->data->frictionForce.x = bList->data->gravityForce.y * -terrain->frictionC;
+				}
 			}
-			else if (bList->data->GetVelocity().x > 0) {
-				bList->data->frictionForce.x = bList->data->gravityForce.y * -terrain->frictionC;
-			}
+			
 			//LOG("Friction: %f", bList->data->frictionForce.x);
 
-			//Drag force
-			if (bList->data->GetVelocity().x < 0) {
-				bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
-			}
-			else {
-				bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
-			}
+			////Drag force
+			//if (bList->data->GetVelocity().x < 0) {
+			//	bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
+			//}
+			//else {
+			//	bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
+			//}
 
-			if (bList->data->GetVelocity().y < 0) {
-				bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
-			}
-			else {
-				bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
-			}
+			//if (bList->data->GetVelocity().y < 0) {
+			//	bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
+			//}
+			//else {
+			//	bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
+			//}
 
 			//Addition of all the forces in order to calculate the acceleration
 
-			float totalX = bList->data->gravityForce.x + bList->data->dragForce.x + bList->data->frictionForce.x + bList->data->jumpPlayerForce.x + bList->data->bounceForce.x;
+			float totalX = bList->data->gravityForce.x + bList->data->dragForce.x + bList->data->frictionForce.x + bList->data->jumpPlayerForce.x + bList->data->buoyancyForce.x;
 
-			float totalY = bList->data->gravityForce.y + bList->data->dragForce.y + bList->data->frictionForce.y + bList->data->jumpPlayerForce.y + bList->data->bounceForce.y;
+			float totalY = bList->data->gravityForce.y + bList->data->dragForce.y + bList->data->frictionForce.y + bList->data->jumpPlayerForce.y + bList->data->buoyancyForce.y;
 
 			//LOG("Total force: %f, %f", totalX, totalY);
 
@@ -475,6 +508,7 @@ void ModulePhysics::Integrator() {
 			bList->data->jumpPlayerForce.x = 0; 
 			bList->data->jumpPlayerForce.y = 0; 
 			bList->data->frictionForce.x = 0; 
+			bList->data->applyFriction = false;
 		}
 	}
 }
@@ -672,5 +706,10 @@ Body* ModulePhysics::CreateCircle(int x, int y, int radius, PhysType type) {
 
 void Body::OnCollision(Body* body2) {
 
+}
+
+float modulus(float vx, float vy)
+{
+	return std::sqrt(vx * vx + vy * vy);
 }
 
