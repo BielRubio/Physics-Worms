@@ -512,7 +512,7 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 				b2->SetPosition(newPos);
 
-				b2->speed.y = -b2->GetVelocity().y * b1->coefElastic;
+				b2->speed.y = -b2->GetVelocity().y * b1->coefRest;
 			}
 			
 		}
