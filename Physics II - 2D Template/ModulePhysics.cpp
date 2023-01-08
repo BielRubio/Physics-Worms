@@ -356,12 +356,12 @@ void ModulePhysics::DebugKeys() {
 	//Delta time
 	if (App->input->GetKey(SDL_SCANCODE_F4) == KEY_STATE::KEY_REPEAT) {
 		if (App->FPS != 1) {
-			App->FPS--;
+			App->FPS++;
 			App->frameDelay = 1 / App->FPS;
 		}
 	}
 	if (App->input->GetKey(SDL_SCANCODE_F5) == KEY_STATE::KEY_REPEAT) {
-		App->FPS++;
+		App->FPS--;
 		App->frameDelay = 1 / App->FPS;
 	}
 	if (App->input->GetKey(SDL_SCANCODE_F6) == KEY_STATE::KEY_DOWN) {
@@ -398,18 +398,6 @@ void ModulePhysics::Integrator() {
 				float dragModulus = modVel * bList->data->hydroDrag; 
 				bList->data->dragForce.x = -unitaryDrag.x * dragModulus; 
 				bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
-				//Buoyancy
-				/*float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
-				float h = 2.0f * bList->data->radius; 
-				float surf = h * (waterTopLevel - bList->data->GetPosition().y);
-				if ((bList->data->GetPosition().y + bList->data->radius) < waterTopLevel) {
-					surf = h * h; 
-				}
-				surf *= 0.4;
-				double buoyancyModulus = water->waterDensity * 10 * surf;
-				bList->data->buoyancyForce.x = 0; 
-				bList->data->buoyancyForce.y = buoyancyModulus;
-				LOG("%f", buoyancyModulus);*/
 			}
 			else {
 				Vector vel = { bList->data->speed.x - terrain->wind.x, bList->data->speed.y - terrain->wind.y };
@@ -420,7 +408,7 @@ void ModulePhysics::Integrator() {
 					bList->data->dragForce.x = -unitaryDrag.x * dragModulus;
 					bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
 				}
-				LOG("DragForce: %f %f", bList->data->dragForce.x, bList->data->dragForce.y);
+				//LOG("DragForce: %f %f", bList->data->dragForce.x, bList->data->dragForce.y);
 			}
 			//Friction force
 			if (bList->data->applyFriction) {
@@ -473,7 +461,7 @@ void ModulePhysics::Integrator() {
 
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
-				LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
+				//LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
 			case(INTEGRATION_METHOD::FW_EULER):
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
@@ -499,6 +487,8 @@ void ModulePhysics::Integrator() {
 			bList->data->jumpPlayerForce.y = 0; 
 			bList->data->frictionForce.x = 0; 
 			bList->data->applyFriction = false;
+			bList->data->IsOnWater = false; 
+			bList->data->buoyancyForce = { 0,0 };
 		}
 	}
 }
@@ -515,8 +505,27 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 		if (b1 != b2->whoShotMe) {
 			LOG("Wyh");
 			App->player->HitPlayer(b1, b2);
+			App->player->TurnFinished = true;
+			App->player->turnTime = 1;
 		}
 		return;
+	}
+	if (b1->GetType() == PhysType::WATER) {
+		b2->IsOnWater = true; 
+		float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
+		
+		float h = 2.0f * b2->radius;
+		float surf = h * (waterTopLevel - b2->GetPosition().y);
+		if ((b2->GetPosition().y + b2->radius) < waterTopLevel) {
+			surf = h * h;
+		}
+		surf *= 0.004;
+		LOG("Surf %f", surf);
+		double buoyancyModulus = water->waterDensity * 10 * surf * 0.025;
+		b2->buoyancyForce.x = 0;
+		b2->buoyancyForce.y = -buoyancyModulus;
+		LOG("Buoyancy: %f", buoyancyModulus);
+		return; 
 	}
 
 	switch (colSolMethod)

@@ -38,6 +38,8 @@ public:
 	Uint32 frameStart;
 	int frameTime;
 
+	int timer = 0;
+
 	Application();
 	~Application();
 
