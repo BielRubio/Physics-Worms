@@ -422,21 +422,6 @@ void ModulePhysics::Integrator() {
 			
 			//LOG("Friction: %f", bList->data->frictionForce.x);
 
-			////Drag force
-			//if (bList->data->GetVelocity().x < 0) {
-			//	bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
-			//}
-			//else {
-			//	bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
-			//}
-
-			//if (bList->data->GetVelocity().y < 0) {
-			//	bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
-			//}
-			//else {
-			//	bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
-			//}
-
 			//Addition of all the forces in order to calculate the acceleration
 
 			float totalX = bList->data->gravityForce.x + bList->data->dragForce.x + bList->data->frictionForce.x + bList->data->jumpPlayerForce.x + bList->data->buoyancyForce.x;
@@ -496,8 +481,7 @@ void ModulePhysics::Integrator() {
 void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 	if (b1->GetType() == PhysType::TARGET && (b2->GetType() == PhysType::PROJECTILE || b2->GetType() == PhysType::TELE_PROJECTILE)) {
-		if (b2->bulletDamage <= 7)
-			b2->bulletDamage *= 2;
+		b2->bulletDamage *= 2;
 		App->scene_intro->ChangeTargetPos();
 		return;
 	}
