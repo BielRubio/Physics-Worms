@@ -30,4 +30,8 @@ public:
 	bool teleBullets;
 
 	Body* lastTeleBullet;
+
+private:
+	int WhiteFont;
+
 };
