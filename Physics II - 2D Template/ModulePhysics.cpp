@@ -48,6 +48,7 @@ update_status ModulePhysics::Update()
 	static char integChar[256];
 	static char debugChar[256];
 	static char colChar[256];
+	static char teleChar[256];
 
 	switch (integMethod)
 	{
@@ -80,6 +81,8 @@ update_status ModulePhysics::Update()
 	default:
 		break;
 	}
+	
+	(App->player->teleBullets) ? sprintf_s(teleChar, 256, "On") : sprintf_s(teleChar, 256, "Off");
 
 	static char title[256];
 	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %f (F4 add, F5 substract, F6 30/60)", integChar, debugChar,colChar, App->FPS);
@@ -148,6 +151,13 @@ update_status ModulePhysics::PostUpdate()
 				RGBAlpha[2] = 160;
 				RGBAlpha[3] = 170;
 				break;
+			case (PhysType::TELE_PROJECTILE):
+
+				RGBAlpha[0] = 0;
+				RGBAlpha[1] = 255;
+				RGBAlpha[2] = 255;
+				RGBAlpha[3] = 255;
+				break;
 			}
 
 			if (body->GetShape() == Shape::RECTANGLE) {
@@ -159,7 +169,16 @@ update_status ModulePhysics::PostUpdate()
 
 			if (body->GetShape() == Shape::CIRCLE) {
 
-				App->renderer->DrawCircle(body->GetPosition().x, body->GetPosition().y, body->GetRadius(), RGBAlpha[0], RGBAlpha[1], RGBAlpha[2], RGBAlpha[3]);
+				if (body->GetType() == PhysType::TARGET) {
+					App->renderer->DrawCircle(body->GetPosition().x, body->GetPosition().y, body->GetRadius(), 255, 0, 0,255);
+					App->renderer->DrawCircle(body->GetPosition().x, body->GetPosition().y, body->GetRadius()-10, 255, 255, 255,255);
+					App->renderer->DrawCircle(body->GetPosition().x, body->GetPosition().y, body->GetRadius()-20, 255, 0, 0, 255);
+					App->renderer->DrawCircle(body->GetPosition().x, body->GetPosition().y, body->GetRadius() - 30, 255, 255, 255, 255);
+				}
+				else {
+					App->renderer->DrawCircle(body->GetPosition().x, body->GetPosition().y, body->GetRadius(), RGBAlpha[0], RGBAlpha[1], RGBAlpha[2], RGBAlpha[3]);
+				}
+				
 			}
 		}
 	}
@@ -234,8 +253,17 @@ bool ModulePhysics::CheckCollisions(Body* b1, Body* b2) {
 					//Collision detected
 					if (returnBool)
 						return true;
-					else
-						CollisionSolver(body1, body2);
+					else {
+						if (body1->GetType() == PhysType::TARGET || body2->GetType() == PhysType::TARGET) {
+							App->scene_intro->ChangeTargetPos();
+						}
+						else {
+							CollisionSolver(body1, body2);
+						}
+						
+					}
+						
+					
 				}
 			}
 
@@ -455,7 +483,7 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 	{
 	case COL_SOLVER_METHOD::TP_NORM_VEC:
 
-		if (b1->GetType() == PhysType::WATER || b2->GetType() == PhysType::WATER) {
+		if (b1->GetType() == PhysType::WATER && b2->GetType() != PhysType::WATER) {
 			//Apply buyancy force
 			break;
 		}

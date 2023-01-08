@@ -16,7 +16,13 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+	void ChangeTargetPos();
+
 public:
 
 	Body* water;
+
+	Body* target;
+
+	int targetScore;
 };

@@ -16,6 +16,7 @@ public:
 	bool CleanUp();
 
 	void FireBullet(int f);
+	void GuideTeleBullet();
 
 public:
 	Body* pbody; 
@@ -25,4 +26,8 @@ public:
 	bool destroyBullet; 
 
 	int bulletCharge;
+
+	bool teleBullets;
+
+	Body* lastTeleBullet;
 };

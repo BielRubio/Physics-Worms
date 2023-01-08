@@ -12,7 +12,9 @@ enum class PhysType {
 	TERRAIN,
 	ENTITY,
 	PROJECTILE,
-	WATER
+	WATER,
+	TARGET,
+	TELE_PROJECTILE
 };
 
 enum class Shape {
