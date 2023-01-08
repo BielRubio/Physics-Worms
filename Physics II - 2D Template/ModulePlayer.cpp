@@ -24,6 +24,7 @@ bool ModulePlayer::Start()
 	WhiteFont = App->fonts->Load("../Assets/FontWhiteDef.png", lookupTable, 1);
 
 	player1Turn = true;
+	turnTime = 30;
 
 	health1 = 100;
 	health2 = 100;
@@ -116,6 +117,7 @@ update_status ModulePlayer::Update()
 	else if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_UP) {
 		FireBullet(bulletCharge);
 		bulletCharge = 10;
+		turnTime = 5;
 
 	}
 	//Fire tele-projectile
@@ -154,13 +156,14 @@ update_status ModulePlayer::Update()
 		GuideTeleBullet();
 	}
 	else if (App->input->GetKey(SDL_SCANCODE_Q) == KEY_STATE::KEY_DOWN) {
-		player1Turn = (!player1Turn) ? true : false;
+		turnTime = 5;
 		lastTeleBullet = nullptr;
 	}
 	
 	//End turn
-	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_STATE::KEY_DOWN) {
+	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_STATE::KEY_DOWN || turnTime <= 0) {
 		player1Turn = (!player1Turn) ? true : false;
+		turnTime = 30;
 	}
 
 	// Fonts
@@ -172,6 +175,8 @@ update_status ModulePlayer::Update()
 	sprintf_s(charAux, "%d", health2);
 	App->fonts->BlitText(990, 0, WhiteFont, charAux);
 
+
+	//Manage turnTime
 
 
 	return UPDATE_CONTINUE;

@@ -27,6 +27,7 @@ public:
 	int health2;
 
 	bool player1Turn;
+	int turnTime;
 
 	bool alive = true; 
 
