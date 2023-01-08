@@ -376,6 +376,16 @@ void ModulePhysics::DebugKeys() {
 			fps30 = true;
 		}
 	}
+	//Forces desactivation
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_STATE::KEY_DOWN) 
+		allowGravity = (!allowGravity) ? true : false;
+	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_STATE::KEY_DOWN)
+		allowAero = (!allowAero) ? true : false;
+	if (App->input->GetKey(SDL_SCANCODE_3) == KEY_STATE::KEY_DOWN)
+		allowHydro = (!allowHydro) ? true : false;
+	if (App->input->GetKey(SDL_SCANCODE_4) == KEY_STATE::KEY_DOWN)
+		allowFriction = (!allowFriction) ? true : false;
+
 }
 
 void ModulePhysics::Integrator() {
@@ -384,42 +394,49 @@ void ModulePhysics::Integrator() {
 	for (bList = bodyList.getFirst(); bList != nullptr; bList = bList->next) {
 		if (bList->data->btype != BodyType::STATIC) {
 			//Gravity Force
-			float mass = bList->data->GetMass(); 
-			Vector gravity = Vector(GRAVITY_X, GRAVITY_Y); 
-			bList->data->gravityForce = Vector(mass * gravity.x, mass * gravity.y);
+			if (allowGravity) {
+				float mass = bList->data->GetMass();
+				Vector gravity = Vector(GRAVITY_X, GRAVITY_Y);
+				bList->data->gravityForce = Vector(mass * gravity.x, mass * gravity.y);
+			}
+			
 
 			//LOG("Gravity force: %f, %f", bList->data->gravityForce.x, bList->data->gravityForce.y);
-
 			if (bList->data->IsOnWater) {
-				//Drag force on water
-				Vector vel = {bList->data->speed.x - water->waterDrag.x, bList->data->speed.y - water->waterDrag.y };
-				float modVel = modulus(vel.x, vel.y); 
-				Vector unitaryDrag = { vel.x / modVel, vel.y / modVel };
-				float dragModulus = modVel * bList->data->hydroDrag; 
-				bList->data->dragForce.x = -unitaryDrag.x * dragModulus; 
-				bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
-			}
-			else {
-				Vector vel = { bList->data->speed.x - terrain->wind.x, bList->data->speed.y - terrain->wind.y };
-				float modVel = modulus(vel.x, vel.y);
-				Vector unitaryDrag = { vel.x / modVel, vel.y / modVel };
-				float dragModulus = 0.5f * terrain->atmosDensity * modVel * modVel * bList->data->dragC;
-				if (bList->data->GetVelocity().x != 0 ) {
+				if (allowHydro) {
+					//Drag force on water
+					Vector vel = { bList->data->speed.x - water->waterDrag.x, bList->data->speed.y - water->waterDrag.y };
+					float modVel = modulus(vel.x, vel.y);
+					Vector unitaryDrag = { vel.x / modVel, vel.y / modVel };
+					float dragModulus = modVel * bList->data->hydroDrag;
 					bList->data->dragForce.x = -unitaryDrag.x * dragModulus;
 					bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
+				}
+			}
+			else {
+				if (allowAero) {
+					Vector vel = { bList->data->speed.x - terrain->wind.x, bList->data->speed.y - terrain->wind.y };
+					float modVel = modulus(vel.x, vel.y);
+					Vector unitaryDrag = { vel.x / modVel, vel.y / modVel };
+					float dragModulus = 0.5f * terrain->atmosDensity * modVel * modVel * bList->data->dragC;
+					if (bList->data->GetVelocity().x != 0) {
+						bList->data->dragForce.x = -unitaryDrag.x * dragModulus;
+						bList->data->dragForce.y = -unitaryDrag.y * dragModulus;
+					}
 				}
 				//LOG("DragForce: %f %f", bList->data->dragForce.x, bList->data->dragForce.y);
 			}
 			//Friction force
-			if (bList->data->applyFriction) {
-				if (bList->data->GetVelocity().x < 0) {
-					bList->data->frictionForce.x = bList->data->gravityForce.y * terrain->frictionC;
-				}
-				else if (bList->data->GetVelocity().x > 0) {
-					bList->data->frictionForce.x = bList->data->gravityForce.y * -terrain->frictionC;
+			if (allowFriction) {
+				if (bList->data->applyFriction) {
+					if (bList->data->GetVelocity().x < 0) {
+						bList->data->frictionForce.x = bList->data->gravityForce.y * terrain->frictionC;
+					}
+					else if (bList->data->GetVelocity().x > 0) {
+						bList->data->frictionForce.x = bList->data->gravityForce.y * -terrain->frictionC;
+					}
 				}
 			}
-			
 			//LOG("Friction: %f", bList->data->frictionForce.x);
 
 			//Addition of all the forces in order to calculate the acceleration
@@ -495,20 +512,22 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 		return;
 	}
 	if (b1->GetType() == PhysType::WATER) {
-		b2->IsOnWater = true; 
-		float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
-		
-		float h = 2.0f * b2->radius;
-		float surf = h * (waterTopLevel - b2->GetPosition().y);
-		if ((b2->GetPosition().y + b2->radius) < waterTopLevel) {
-			surf = h * h;
+		if (allowHydro) {
+			b2->IsOnWater = true;
+			float waterTopLevel = water->waterBody->GetPosition().y + water->waterBody->GetHeight();
+
+			float h = 2.0f * b2->radius;
+			float surf = h * (waterTopLevel - b2->GetPosition().y);
+			if ((b2->GetPosition().y + b2->radius) < waterTopLevel) {
+				surf = h * h;
+			}
+			surf *= 0.004;
+			LOG("Surf %f", surf);
+			double buoyancyModulus = water->waterDensity * 10 * surf * 0.025;
+			b2->buoyancyForce.x = 0;
+			b2->buoyancyForce.y = -buoyancyModulus;
+			LOG("Buoyancy: %f", buoyancyModulus);
 		}
-		surf *= 0.004;
-		LOG("Surf %f", surf);
-		double buoyancyModulus = water->waterDensity * 10 * surf * 0.025;
-		b2->buoyancyForce.x = 0;
-		b2->buoyancyForce.y = -buoyancyModulus;
-		LOG("Buoyancy: %f", buoyancyModulus);
 		return; 
 	}
 
