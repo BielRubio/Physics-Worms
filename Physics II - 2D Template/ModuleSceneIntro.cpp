@@ -36,11 +36,9 @@ update_status ModuleSceneIntro::Update()
 		ChangeTargetPos();
 	}
 
-	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_STATE::KEY_DOWN) {
+	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_STATE::KEY_DOWN || ((App->player->health1 <= 0 || App->player->health2 <= 0))) {
 		App->player->Disable();
 		App->physics->Disable();
-	}
-	if (App->input->GetKey(SDL_SCANCODE_BACKSPACE) == KEY_STATE::KEY_DOWN) {
 		App->player->Enable();
 		App->physics->Enable();
 	}

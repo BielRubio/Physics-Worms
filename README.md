@@ -1,5 +1,5 @@
 ## Physics-Worms
-This project 
+This project is an assigment for the 2022-2023 Physics II class 2nd grade in CITM
 
 ## GAME
 - Shot your adversary in this 1v1 turn based match in order to win
