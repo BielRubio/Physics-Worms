@@ -176,9 +176,11 @@ update_status ModulePlayer::Update()
 	}
 
 	//Manage turnTime
-	App->timer++;
-	if (App->timer >= (App->FPS*2)) App->timer = 0;
-	if (App->timer == App->FPS) turnTime--;
+	timer = SDL_GetTicks();
+	if (timer > Time * 1000) {
+		Time++;
+		turnTime--;
+	}
 
 	// Fonts
 	char charAux[10];

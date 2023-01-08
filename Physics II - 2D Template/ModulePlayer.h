@@ -28,6 +28,7 @@ public:
 
 	bool player1Turn;
 	int turnTime;
+	int Time = 0, timer = 0;
 
 	bool alive = true; 
 
