@@ -506,7 +506,8 @@ void ModulePhysics::Integrator() {
 void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 	if (b1->GetType() == PhysType::TARGET && (b2->GetType() == PhysType::PROJECTILE || b2->GetType() == PhysType::TELE_PROJECTILE)) {
-		b2->bulletDamage *= 2;
+		if (b2->bulletDamage <= 7)
+			b2->bulletDamage *= 2;
 		App->scene_intro->ChangeTargetPos();
 		return;
 	}
