@@ -96,11 +96,12 @@ public:
 private:
 
 	p2Point<float> position, LastPosition;
-	Vector speed; 
+	Vector speed;
 	int width, height;
 	int radius;
 	float mass = 1.0; 
-	float coefElastic; 
+	unsigned int coefElastic; 
+	float dragC = 0.1; 
 
 	
 	friend class ModulePhysics;
@@ -134,7 +135,6 @@ public:
 
 	float frictionC;
 
-	float dragC = 0.001;
 
 };
 

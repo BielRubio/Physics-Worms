@@ -406,17 +406,17 @@ void ModulePhysics::Integrator() {
 
 			//Drag force
 			if (bList->data->GetVelocity().x < 0) {
-				bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * terrain->dragC;
+				bList->data->dragForce.x = bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
 			}
 			else {
-				bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * terrain->dragC;
+				bList->data->dragForce.x = -bList->data->GetVelocity().x * bList->data->GetVelocity().x * bList->data->dragC;
 			}
 
 			if (bList->data->GetVelocity().y < 0) {
-				bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * terrain->dragC;
+				bList->data->dragForce.y = bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
 			}
 			else {
-				bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * terrain->dragC;
+				bList->data->dragForce.y = -bList->data->GetVelocity().y * bList->data->GetVelocity().y * bList->data->dragC;
 			}
 
 			//Addition of all the forces in order to calculate the acceleration
@@ -428,7 +428,6 @@ void ModulePhysics::Integrator() {
 			//LOG("Total force: %f, %f", totalX, totalY);
 
 			Vector acceleration = Vector(totalX / bList->data->mass, totalY / bList->data->mass);
-
 			p2Point<float> currentPos = bList->data->GetPosition();
 
 			Vector velocity = bList->data->GetVelocity(); 
@@ -444,28 +443,24 @@ void ModulePhysics::Integrator() {
 
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
-				break;
-				//LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
+				LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
 			case(INTEGRATION_METHOD::FW_EULER):
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
 
 				currentPos.x += velocity.x * App->frameDelay;
 				currentPos.y += velocity.y * App->frameDelay;
-				break;
 			case(INTEGRATION_METHOD::VERLET):
 				currentPos.x += velocity.x * App->frameDelay + 0.5 * acceleration.x * App->frameDelay * App->frameDelay;
 				currentPos.y += velocity.y * App->frameDelay + 0.5 * acceleration.y * App->frameDelay * App->frameDelay;
 
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
-				break;
 			default: 
-				//integMethod = INTEGRATION_METHOD::BW_EULER; 
-				break;
+				break; 
 			}
-			//LOG("Pos after integrator: %f, %f", currentPos.x, currentPos.y);
-			//LOG("Velocity after integrator: %f, %f", velocity.x, velocity.y);
+
+
 			bList->data->SetPosition(currentPos);
 
 			bList->data->SetVelocity(velocity); 
