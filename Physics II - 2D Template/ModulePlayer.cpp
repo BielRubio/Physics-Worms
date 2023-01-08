@@ -20,7 +20,7 @@ bool ModulePlayer::Start()
 
 	//Initialize variables
 	bulletCharge = 10;
-	char lookupTable[] = { "abcdefghijklmnopqrstuvwxyz0123456789 " };
+	char lookupTable[] = { "abcdefghijklmnopqrstuvwxyz0123456789: " };
 	WhiteFont = App->fonts->Load("../Assets/FontWhiteDef.png", lookupTable, 1);
 
 	player1Turn = true;
@@ -85,7 +85,6 @@ update_status ModulePlayer::Update()
 		}
 	}
 
-	App->fonts->BlitText(0, 0, WhiteFont, "this is a test");
 	//Fire Projectile
 	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_REPEAT) {
 		if (player1Turn) {
@@ -163,6 +162,16 @@ update_status ModulePlayer::Update()
 	if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_STATE::KEY_DOWN) {
 		player1Turn = (!player1Turn) ? true : false;
 	}
+
+	// Fonts
+	char charAux[10];
+	sprintf_s(charAux, "%d", health1);
+	App->fonts->BlitText(144, 0, WhiteFont, charAux);
+	App->fonts->BlitText(0, 0, WhiteFont, "player 1 hp:");
+	App->fonts->BlitText(846, 0, WhiteFont, "player 2 hp:");
+	sprintf_s(charAux, "%d", health2);
+	App->fonts->BlitText(990, 0, WhiteFont, charAux);
+
 
 
 	return UPDATE_CONTINUE;
