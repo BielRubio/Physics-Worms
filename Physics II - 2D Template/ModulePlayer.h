@@ -15,12 +15,14 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+	void FireBullet(int f);
+
 public:
 	Body* pbody; 
-
-	p2List<Body*> bullets; 
 
 	bool alive = true; 
 
 	bool destroyBullet; 
+
+	int bulletCharge;
 };

@@ -82,7 +82,7 @@ update_status ModulePhysics::Update()
 	}
 
 	static char title[256];
-	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %d (F4 add, F5 substract, F6 30/60)", integChar, debugChar,colChar, App->FPS);
+	sprintf_s(title, 256, "Integ. Method (F1): %s | Debug Draw (F2): %s | Col. Solving Scheme (F3): %s | FPS : %f (F4 add, F5 substract, F6 30/60)", integChar, debugChar,colChar, App->FPS);
 	App->window->SetTitle(title);
 
 	//Apply forces to all bodies
@@ -122,9 +122,9 @@ update_status ModulePhysics::PostUpdate()
 			switch (body->GetType()) {
 			case (PhysType::TERRAIN):
 
-				RGBAlpha[0] = 255;
-				RGBAlpha[1] = 0;
-				RGBAlpha[2] = 0;
+				RGBAlpha[0] = 82;
+				RGBAlpha[1] = 54;
+				RGBAlpha[2] = 20;
 				RGBAlpha[3] = 255;
 				break;
 			case (PhysType::ENTITY):
@@ -140,6 +140,13 @@ update_status ModulePhysics::PostUpdate()
 				RGBAlpha[1] = 0;
 				RGBAlpha[2] = 255;
 				RGBAlpha[3] = 255;
+				break;
+			case (PhysType::WATER):
+
+				RGBAlpha[0] = 53;
+				RGBAlpha[1] = 109;
+				RGBAlpha[2] = 160;
+				RGBAlpha[3] = 170;
 				break;
 			}
 
@@ -327,22 +334,22 @@ void ModulePhysics::DebugKeys() {
 	if (App->input->GetKey(SDL_SCANCODE_F4) == KEY_STATE::KEY_REPEAT) {
 		if (App->FPS != 1) {
 			App->FPS--;
-			App->frameDelay = 1000 / App->FPS;
+			App->frameDelay = 1 / App->FPS;
 		}
 	}
 	if (App->input->GetKey(SDL_SCANCODE_F5) == KEY_STATE::KEY_REPEAT) {
 		App->FPS++;
-		App->frameDelay = 1000 / App->FPS;
+		App->frameDelay = 1 / App->FPS;
 	}
 	if (App->input->GetKey(SDL_SCANCODE_F6) == KEY_STATE::KEY_DOWN) {
 		if (fps30 == true) {
 			App->FPS = 60;
-			App->frameDelay = 1000 / App->FPS;
+			App->frameDelay = 1 / App->FPS;
 			fps30 = false;
 		}
 		else {
 			App->FPS = 30;
-			App->frameDelay = 1000 / App->FPS;
+			App->frameDelay = 1 / App->FPS;
 			fps30 = true;
 		}
 	}
@@ -358,6 +365,7 @@ void ModulePhysics::Integrator() {
 			Vector gravity = Vector(GRAVITY_X, GRAVITY_Y); 
 			bList->data->gravityForce = Vector(mass * gravity.x, mass * gravity.y);
 
+			//LOG("Gravity force: %f, %f", bList->data->gravityForce.x, bList->data->gravityForce.y);
 
 			//Friction force
 			if (bList->data->GetVelocity().x < 0) {
@@ -366,6 +374,7 @@ void ModulePhysics::Integrator() {
 			else if (bList->data->GetVelocity().x > 0) {
 				bList->data->frictionForce.x = bList->data->gravityForce.y * -terrain->frictionC;
 			}
+			//LOG("Friction: %f", bList->data->frictionForce.x);
 
 			//Drag force
 			if (bList->data->GetVelocity().x < 0) {
@@ -388,13 +397,15 @@ void ModulePhysics::Integrator() {
 
 			float totalY = bList->data->gravityForce.y + bList->data->dragForce.y + bList->data->frictionForce.y + bList->data->jumpPlayerForce.y + bList->data->bounceForce.y;
 
+			//LOG("Total force: %f, %f", totalX, totalY);
 
 			Vector acceleration = Vector(totalX / bList->data->mass, totalY / bList->data->mass);
 			p2Point<float> currentPos = bList->data->GetPosition();
 
 			Vector velocity = bList->data->GetVelocity(); 
-			LOG("Velocity before moving: %f, %f", velocity.x, velocity.y);
-			LOG("Acceleration before moving: %f, %f", acceleration.x, acceleration.y);
+			//LOG("Pos before moving: %f, %f", currentPos.x, currentPos.y);
+			//LOG("Velocity before moving: %f, %f", velocity.x, velocity.y);
+			//LOG("Acceleration before moving: %f, %f", acceleration.x, acceleration.y);
 
 
 			switch (integMethod) {
@@ -404,6 +415,7 @@ void ModulePhysics::Integrator() {
 
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
+				LOG("AAAAAA: %f, %f", acceleration.y * App->frameDelay, acceleration.y, App->frameDelay);
 			case(INTEGRATION_METHOD::FW_EULER):
 				velocity.x += acceleration.x * App->frameDelay;
 				velocity.y += acceleration.y * App->frameDelay;
@@ -438,15 +450,36 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 	{
 	case COL_SOLVER_METHOD::TP_NORM_VEC:
 
+		if (b1->GetType() == PhysType::WATER || b2->GetType() == PhysType::WATER) {
+			//Apply buyancy force
+			break;
+		}
+
 		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
 			
-			float dY = b1->GetPosition().y - b2->GetPosition().y;
+			if (b2->GetShape() != Shape::CIRCLE) {
 
-			p2Point<float> newPos;
-			newPos.x = b2->GetPosition().x; 
-			newPos.y = b2->GetPosition().y - (b2->GetHeight() - dY);
+				float dY = b1->GetPosition().y - b2->GetPosition().y;
 
-			b2->SetPosition(newPos);
+				p2Point<float> newPos;
+				newPos.x = b2->GetPosition().x;
+				newPos.y = b2->GetPosition().y - (b2->GetHeight() - dY);
+
+				b2->SetPosition(newPos);
+			}
+			else if (b2->GetShape() == Shape::CIRCLE) {
+
+				float dY = b1->GetPosition().y - b2->GetPosition().y;
+
+				p2Point<float> newPos;
+				newPos.x = b2->GetPosition().x;
+				newPos.y = b2->GetPosition().y - (b2->GetRadius() - dY);
+
+				b2->SetPosition(newPos);
+
+				b2->speed.y = -b2->GetVelocity().y * b1->coefElastic;
+			}
+			
 		}
 
 		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
@@ -456,6 +489,11 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 		break;
 	case COL_SOLVER_METHOD::ITERATE_CONTACT_POINT:
+
+		if (b1->GetType() == PhysType::WATER || b2->GetType() == PhysType::WATER) {
+			//Apply buyancy force
+			break;
+		}
 
 		if (b1->btype == BodyType::STATIC && b2->btype != BodyType::STATIC) {
 
@@ -477,6 +515,11 @@ void ModulePhysics::CollisionSolver(Body* b1, Body* b2) {
 
 		break;
 	case COL_SOLVER_METHOD::BACK_TO_LAST_POINT:
+
+		if (b1->GetType() == PhysType::WATER || b2->GetType() == PhysType::WATER) {
+			//Apply buyancy force
+			break;
+		}
 
 		if (b1->btype == BodyType::DYNAMIC && b2->btype == BodyType::DYNAMIC) {
 			b1->position = b1->LastPosition;
@@ -505,7 +548,7 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	terrain->SetPosition(pos); 
 	terrain->SetVelocity(Vector(0, 0)); 
 
-	terrain->SetWidth(SCREEN_WIDTH); 
+	terrain->SetWidth(SCREEN_WIDTH - 324); 
 	terrain->SetHeigth(SCREEN_HEIGHT - terrain->position.y); 
 
 	terrain->SetMass(10000000000); //Value?
@@ -513,10 +556,12 @@ void ModulePhysics::CreateTerrain(p2Point<float> pos) {
 	terrain->btype = BodyType::STATIC; 
 	terrain->shape = Shape::RECTANGLE; 
 	terrain->type = PhysType::TERRAIN; 
+
+	terrain->coefElastic = 0.5;
 		
 	bodyList.add(terrain);
 
-	this->terrain = new Terrain(Vector(GRAVITY_X, GRAVITY_Y), 0, terrain); 
+	this->terrain = new Terrain(Vector(GRAVITY_X, GRAVITY_Y), 0, terrain);
 }
 
 //Body class methods
@@ -540,6 +585,10 @@ void Body::SetHeigth(int heigth) {
 void Body::SetMass(unsigned int mass) {
 	this->mass = mass; 
 }
+void  Body::SetBodyType(BodyType bt) {
+	this->btype = bt;
+}
+
 
 Body* ModulePhysics::CreateRectangle(int x, int y, int w, int h, PhysType type) {
 

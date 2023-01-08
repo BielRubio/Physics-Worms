@@ -11,7 +11,8 @@ enum class PhysType {
 	UNKNOWN = 0,
 	TERRAIN,
 	ENTITY,
-	PROJECTILE
+	PROJECTILE,
+	WATER
 };
 
 enum class Shape {
@@ -86,6 +87,7 @@ public:
 	void SetWidth(int width);
 	void SetHeigth(int heigth);
 	void SetMass(unsigned int mass); 
+	void SetBodyType(BodyType bt);
 
 	void OnCollision(Body* body2);
 

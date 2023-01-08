@@ -14,8 +14,11 @@ bool ModulePlayer::Start()
 {
 	LOG("Loading player");
 
-	pbody = App->physics->CreateRectangle(0,0,30,60,PhysType::ENTITY);
-	
+	pbody = App->physics->CreateRectangle(App->renderer->camera.w/2 - 15,500,30,60,PhysType::ENTITY);
+
+	//Initialize variables
+	bulletCharge = 10;
+
 	return true;
 }
 
@@ -24,6 +27,7 @@ update_status ModulePlayer::Update()
 {
 	int speed = 5;
 
+	//Movement
 	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_STATE::KEY_REPEAT) {
 
 		p2Point<float> newPos;
@@ -39,22 +43,25 @@ update_status ModulePlayer::Update()
 
 		pbody->SetPosition(newPos);
 	}
-	if (App->input->GetKey(SDL_SCANCODE_W) == KEY_STATE::KEY_REPEAT) {
+	//Fire Projectile
+	if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_REPEAT) {
+		if (bulletCharge < 100)
+			bulletCharge++;
 
-		p2Point<float> newPos;
-		newPos.x = pbody->GetPosition().x;
-		newPos.y = pbody->GetPosition().y - speed;
+		float vecX = App->input->GetMouseX() - pbody->GetPosition().x;
+		float vecY = App->input->GetMouseY() - pbody->GetPosition().y;
 
-		pbody->SetPosition(newPos);
+		float vecNormX = vecX / sqrt(pow(vecX, 2) + pow(vecY, 2));
+		float vecNormY = vecY / sqrt(pow(vecX, 2) + pow(vecY, 2));
+
+		App->renderer->DrawLine(pbody->GetPosition().x, pbody->GetPosition().y, pbody->GetPosition().x + vecNormX * bulletCharge, pbody->GetPosition().y + vecNormY * bulletCharge, 200, 200, 0, 255);
 	}
-	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_STATE::KEY_REPEAT) {
-		p2Point<float> newPos;
-		newPos.x = pbody->GetPosition().x;
-		newPos.y = pbody->GetPosition().y + speed;
+	else if (App->input->GetKey(SDL_SCANCODE_E) == KEY_STATE::KEY_UP) {
+		FireBullet(bulletCharge);
+		bulletCharge = 10;
 
-		pbody->SetPosition(newPos);
 	}
-	LOG("Position: %f, %f", pbody->GetPosition().x, pbody->GetPosition().y); 
+
 	return UPDATE_CONTINUE;
 }
 
@@ -66,6 +73,23 @@ bool ModulePlayer::CleanUp()
 	return true;
 }
 
+void ModulePlayer::FireBullet(int f) {
+	
+	Body* bullet = App->physics->CreateCircle(pbody->GetPosition().x, pbody->GetPosition().y,10,PhysType::PROJECTILE);
+
+	bullet->SetMass(1);
+
+	float vecX = App->input->GetMouseX() - pbody->GetPosition().x;
+	float vecY = App->input->GetMouseY() - pbody->GetPosition().y;
+
+	float vecNormX = vecX / sqrt(pow(vecX, 2) + pow(vecY, 2));
+	float vecNormY = vecY / sqrt(pow(vecX, 2) + pow(vecY, 2));
+
+	bullet->jumpPlayerForce = { vecNormX * f * 20, vecNormY * f * 20};
+
+	LOG("%f %f",bullet->jumpPlayerForce.x, bullet->jumpPlayerForce.y);
+
+}
 
 
 
